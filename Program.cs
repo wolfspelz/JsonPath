@@ -22,23 +22,23 @@ namespace JsonPathDemo
             Console.WriteLine("");
 
             Console.WriteLine("Get to the value quickly:");
-            var aNumber = root.List[1].Dictionary["aNumber"].Int;
-            Console.WriteLine("  root.List[1].Dictionary[\"aNumber\"].Int = " + aNumber);
+            int aNumber1 = root.List[1].Dictionary["aNumber"];
+            Console.WriteLine("  root.List[1].Dictionary[\"aNumber\"] = " + aNumber1);
             Console.WriteLine("");
 
             Console.WriteLine("The same in JavaScript notation:");
-            var aNumber2 = root.Array[1].Object["aNumber"].Int;
-            Console.WriteLine("  root.Array[1].Object[\"aNumber\"].Int = " + aNumber2);
+            int aNumber2 = root.Array[1].Object["aNumber"];
+            Console.WriteLine("  root.Array[1].Object[\"aNumber\"] = " + aNumber2);
             Console.WriteLine("");
 
             Console.WriteLine("The same with fail safe getters:");
-            var aNumber3 = root.Array.Get(1).Object.Get("aNumber").Int;
-            Console.WriteLine("  root.Array.Get(1).Object.Get(\"aNumber\").Int = " + aNumber3);
+            int aNumber3 = root.Array.Get(1).Object.Get("aNumber");
+            Console.WriteLine("  root.Array.Get(1).Object.Get(\"aNumber\") = " + aNumber3);
             Console.WriteLine("");
 
             Console.WriteLine("Fail safe getters do not throw exceptions for invalid indexes:");
-            var aNumber4 = root.Array.Get(2).Object.Get("noNumber").Int;
-            Console.WriteLine("  root.Array.Get(2).Object.Get(\"noNumber\").Int = " + aNumber4);
+            int aNumber4 = root.Array.Get(2).Object.Get("noNumber");
+            Console.WriteLine("  root.Array.Get(2).Object.Get(\"noNumber\") = " + aNumber4);
             Console.WriteLine("");
 
             Console.WriteLine("Press <ENTER>");

@@ -81,14 +81,32 @@ namespace Test.JsonPath
             var root = new Node(sIn);
 
             // Assert
-            Assert.AreEqual(root.AsDictionary["a"].String, "41");
-            Assert.AreEqual(root.AsDictionary["a"].AsString, "41");
-            Assert.AreEqual(root.AsDictionary["b"].Int, 42);
-            Assert.AreEqual(root.AsDictionary["b"].AsInt, 42);
-            Assert.AreEqual(root.AsDictionary["c"].Bool, true);
-            Assert.AreEqual(root.AsDictionary["c"].AsBool, true);
-            Assert.AreEqual(root.AsDictionary["d"].Float, 3.14);
-            Assert.AreEqual(root.AsDictionary["d"].AsFloat, 3.14);
+            Assert.AreEqual("41", root.AsDictionary["a"].String);
+            Assert.AreEqual(42, root.AsDictionary["b"].Int);
+            Assert.AreEqual(true, root.AsDictionary["c"].Bool);
+            Assert.AreEqual(3.14, root.AsDictionary["d"].Float);
+
+            Assert.AreEqual("41", root.AsDictionary["a"].AsString);
+            Assert.AreEqual(42, root.AsDictionary["b"].AsInt);
+            Assert.AreEqual(true, root.AsDictionary["c"].AsBool);
+            Assert.AreEqual(3.14, root.AsDictionary["d"].AsFloat);
+
+            Assert.AreEqual("41", (string)root.AsDictionary["a"]);
+            Assert.AreEqual(42, (long)root.AsDictionary["b"]);
+            Assert.AreEqual(42, (int)root.AsDictionary["b"]);
+            Assert.AreEqual(true, (bool)root.AsDictionary["c"]);
+            Assert.AreEqual(3.14, (double)root.AsDictionary["d"]);
+
+            string s = root.AsDictionary["a"];
+            Assert.AreEqual("41", s);
+            long l = root.AsDictionary["b"];
+            Assert.AreEqual(42, l);
+            int i = root.AsDictionary["b"];
+            Assert.AreEqual(42, i);
+            bool b = root.AsDictionary["c"];
+            Assert.AreEqual(true, b);
+            double d = root.AsDictionary["d"];
+            Assert.AreEqual(3.14, d);
         }
 
         [TestMethod]
@@ -101,10 +119,10 @@ namespace Test.JsonPath
             var root = new Node(sIn);
 
             // Assert
-            Assert.AreEqual(root.Object["b"].Array[0].String, "b0");
-            Assert.AreEqual(root.Dictionary["b"].List[0].String, "b0");
-            Assert.AreEqual(root.AsObject["b"].AsArray[0].String, "b0");
-            Assert.AreEqual(root.AsDictionary["b"].AsList[0].String, "b0");
+            Assert.AreEqual("b0", root.Object["b"].Array[0].String);
+            Assert.AreEqual("b0", root.Dictionary["b"].List[0].String);
+            Assert.AreEqual("b0", root.AsObject["b"].AsArray[0].String);
+            Assert.AreEqual("b0", root.AsDictionary["b"].AsList[0].String);
         }
 
         //[TestMethod]

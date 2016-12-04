@@ -49,7 +49,6 @@ namespace JsonPath
         public List List { get { return AsList; } }
         public Dictionary Dictionary { get { return AsDictionary; } }
         public List AsArray { get { return AsList; } }
-
         public List Array { get { return AsList; } }
         public Dictionary AsObject { get { return AsDictionary; } }
         public Dictionary Object { get { return AsDictionary; } }
@@ -57,6 +56,11 @@ namespace JsonPath
         public bool AsBool { get { return Bool; } }
         public string AsString { get { return String; } }
         public double AsFloat { get { return Float; } }
+        public static implicit operator int(Node node) { return (int) node.Int; }
+        public static implicit operator long(Node node) { return node.Int; }
+        public static implicit operator bool(Node node) { return node.Bool; }
+        public static implicit operator string(Node node) { return node.String; }
+        public static implicit operator double(Node node) { return node.Float; }
 
         public long Int
         {
