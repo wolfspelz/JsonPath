@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonPathDemo", "JsonPathDem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonPath", "JsonPath\JsonPath.csproj", "{C5F5EE47-476D-4C13-9192-C919CBDA5973}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{C469498E-94C5-4288-B5A5-DFB4804DA658}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C5F5EE47-476D-4C13-9192-C919CBDA5973}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5F5EE47-476D-4C13-9192-C919CBDA5973}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5F5EE47-476D-4C13-9192-C919CBDA5973}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C469498E-94C5-4288-B5A5-DFB4804DA658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C469498E-94C5-4288-B5A5-DFB4804DA658}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C469498E-94C5-4288-B5A5-DFB4804DA658}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C469498E-94C5-4288-B5A5-DFB4804DA658}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

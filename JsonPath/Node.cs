@@ -30,8 +30,8 @@ namespace JsonPath
     {
         public enum Type { Empty, List, Dictionary, Int, Bool, String, Float }
 
-        private readonly Type _type = Type.Empty;
         public object Value;
+        private readonly Type _type = Type.Empty;
         private bool _throwExceptionIfConversionFails = false;
 
         public bool IsEmpty { get { return _type == Type.Empty; } }
