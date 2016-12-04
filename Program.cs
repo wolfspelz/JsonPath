@@ -31,7 +31,7 @@ namespace JsonPathDemo
             int noidx = root[1000]["noNumber"];
             Console.WriteLine("  root[1000][\"noNumber\"] = " + noidx);
 
-            Console.WriteLine("You can of course interate over a List:");
+            Console.WriteLine("You can of course iterate over a List:");
             for (int index = 0; index < root.AsList.Count; index++) {
                 Console.WriteLine("  root[" + index + "] = " + root[index]);
             }
