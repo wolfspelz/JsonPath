@@ -9,13 +9,15 @@ Extract the 42 from:
 
 With C# expressions:
 
-    long fourtytwo = json.List[1].Dictionary["aNumber"];
-    var fourtytwo = (long)json.List[1].Dictionary["aNumber"];
+    int fourtytwo = json.List[1].Dictionary["aNumber"];
+
+    var fourtytwo = (int)json.List[1].Dictionary["aNumber"];
+
     var fourtytwo = json.List[1].Dictionary["aNumber"].Int;
 
 Or you may use Javascript notation (Array/Object instead of List/Dictionary ) for the same result: 
 
-    var fourtytwo = (long)json.Array[1].Object["aNumber"];
+    int fourtytwo = json.Array[1].Object["aNumber"];
 
 Dive deep into this JSON with a single line of code:
 
