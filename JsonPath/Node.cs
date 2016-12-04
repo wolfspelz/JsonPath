@@ -61,6 +61,7 @@ namespace JsonPath
         public static implicit operator bool(Node node) { return node.Bool; }
         public static implicit operator string(Node node) { return node.String; }
         public static implicit operator double(Node node) { return node.Float; }
+        public override string ToString() { return String; }
 
         public long Int
         {

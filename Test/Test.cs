@@ -107,6 +107,8 @@ namespace Test.JsonPath
             Assert.AreEqual(true, b);
             double d = root.AsDictionary["d"];
             Assert.AreEqual(3.14, d);
+
+            Assert.AreEqual("41", root.AsDictionary["a"].ToString());
         }
 
         [TestMethod]
