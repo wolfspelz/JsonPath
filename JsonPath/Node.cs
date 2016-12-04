@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -26,7 +27,7 @@ namespace JsonPath
         }
     }
 
-    public class Node
+    public class Node //: IEnumerable<KeyValuePair<string, Node>>, IEnumerable<Node>
     {
         public enum Type { Empty, List, Dictionary, Int, Bool, String, Float }
 
@@ -52,29 +53,39 @@ namespace JsonPath
         public List Array { get { return AsList; } }
         public Dictionary AsObject { get { return AsDictionary; } }
         public Dictionary Object { get { return AsDictionary; } }
-        public long AsInt { get { return Int; } }
-        public bool AsBool { get { return Bool; } }
-        public string AsString { get { return String; } }
-        public double AsFloat { get { return Float; } }
-        public static implicit operator int(Node node) { return (int) node.Int; }
-        public static implicit operator long(Node node) { return node.Int; }
-        public static implicit operator bool(Node node) { return node.Bool; }
-        public static implicit operator string(Node node) { return node.String; }
-        public static implicit operator double(Node node) { return node.Float; }
-        public override string ToString() { return String; }
+        public long Int { get { return AsInt; } }
+        public bool Bool { get { return AsBool; } }
+        public string String { get { return AsString; } }
+        public double Float { get { return AsFloat; } }
+        public static implicit operator int(Node node) { return (int)node.AsInt; }
+        public static implicit operator long(Node node) { return node.AsInt; }
+        public static implicit operator bool(Node node) { return node.AsBool; }
+        public static implicit operator string(Node node) { return node.AsString; }
+        public static implicit operator double(Node node) { return node.AsFloat; }
+        public static implicit operator List(Node node) { return node.AsList; }
+        public static implicit operator Dictionary(Node node) { return node.AsDictionary; }
+        public Node this[int index] { get { return AsList.Get(index); } }
+        public Node this[string key] { get { return AsDictionary.Get(key); } }
+        public Node Get(int index) { return AsList.Get(index); }
+        public Node Get(string key) { return AsDictionary.Get(key); }
 
-        public long Int
+        // Problem: Dictionary interator seems to hide the List iterator. No way to decide which one is appropriate
+        //IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<KeyValuePair<string, Node>>)AsDictionary).GetEnumerator(); }
+        //IEnumerator<Node> IEnumerable<Node>.GetEnumerator() { return ((IEnumerable<Node>)AsList).GetEnumerator(); }
+        //public IEnumerator<KeyValuePair<string, Node>> GetEnumerator() { return ((IEnumerable<KeyValuePair<string, Node>>)AsDictionary).GetEnumerator(); }
+
+        public long AsInt
         {
             get {
                 if (IsInt) {
                     return (long)Value;
                 } else if (IsString) {
                     long result;
-                    if (Int64.TryParse(String, out result)) {
+                    if (Int64.TryParse(AsString, out result)) {
                         return result;
                     }
                 } else if (IsFloat) {
-                    return Convert.ToInt64(Float);
+                    return Convert.ToInt64(AsFloat);
                 }
                 if (_throwExceptionIfConversionFails) {
                     throw new Exception("Wrong node type: trying to read " + Type.Int.ToString() + " from " + _type.ToString());
@@ -84,19 +95,19 @@ namespace JsonPath
             }
         }
 
-        public bool Bool
+        public bool AsBool
         {
             get {
                 if (IsBool) {
                     return (bool)Value;
                 } else if (IsString) {
-                    var s = String.ToLower();
+                    var s = AsString.ToLower();
                     return s == "true";
                 } else if (IsInt) {
-                    return Int != 0;
+                    return AsInt != 0;
                 } else if (IsFloat) {
                     // ReSharper disable once CompareOfFloatsByEqualityOperator
-                    return Float != 0.0;
+                    return AsFloat != 0.0;
                 }
                 if (_throwExceptionIfConversionFails) {
                     throw new Exception("Wrong node type: trying to read " + Type.Bool.ToString() + " from " + _type.ToString());
@@ -106,37 +117,42 @@ namespace JsonPath
             }
         }
 
-        public string String
+        public string AsString
         {
             get {
                 if (IsString) {
                     return (string)Value;
                 } else if (IsInt) {
-                    return Int.ToString(CultureInfo.InvariantCulture);
+                    return AsInt.ToString(CultureInfo.InvariantCulture);
                 } else if (IsFloat) {
                     return String.Format(CultureInfo.InvariantCulture, "{0}", (double)Value);
                 } else if (IsBool) {
-                    return Bool ? "true" : "false";
+                    return AsBool ? "true" : "false";
                 }
                 if (_throwExceptionIfConversionFails) {
                     throw new Exception("Wrong node type: trying to read " + Type.String.ToString() + " from " + _type.ToString());
                 } else {
+                    if (IsDictionary) {
+                        return "<Dictionary>";
+                    } else if (IsList) {
+                        return "<List>";
+                    }
                     return "";
                 }
             }
         }
 
-        public double Float
+        public double AsFloat
         {
             get {
                 if (IsFloat) {
                     return (double)Value;
                 } else if (IsInt) {
-                    return (double)Int;
+                    return (double)AsInt;
                 } else if (IsString) {
                     double result = 0.0;
-                    if (Double.TryParse(String, NumberStyles.Any, CultureInfo.InvariantCulture, out result)) {
-                        return Double.Parse(String, CultureInfo.InvariantCulture);
+                    if (Double.TryParse(AsString, NumberStyles.Any, CultureInfo.InvariantCulture, out result)) {
+                        return Double.Parse(AsString, CultureInfo.InvariantCulture);
                     }
                 }
                 if (_throwExceptionIfConversionFails) {
@@ -172,7 +188,6 @@ namespace JsonPath
         public Node(string sJson, Deserializer.Options options = null)
         {
             var node = Deserializer.FromJson(sJson, options);
-
             _type = node._type;
             Value = node.Value;
         }

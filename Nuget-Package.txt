@@ -1,5 +1,5 @@
 cd C:\Heiner\github-JsonPath\JsonPath
 ..\.nuget\nuget pack JsonPath.csproj -Prop Configuration=Release
-..\.nuget\nuget push JsonPath.1.0.4.nupkg
+..\.nuget\nuget push JsonPath.1.0.5.nupkg
 
 REM

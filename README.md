@@ -1,23 +1,35 @@
 JsonPath
 ========
 
-Inspect values in JSON data with single line expressions without using foreach/if to extract values from JSON. 
+Goal: extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath fpr XML, but for JSON and type safe.
 
 Extract the 42 from:
 
-    '[ "first ", { "aString": "HelloWorld", "aNumber": 42 } ]'
+    [ "first", "second", { "aString": "Hello World", "aNumber": 42 } ]
 
 With C# expressions:
 
-    int fourtytwo = json.List[1].Dictionary["aNumber"];
+    int fourtytwo = root[2]["aNumber"];
 
-    var fourtytwo = (int)json.List[1].Dictionary["aNumber"];
+If you want to be more verbose:
 
-    var fourtytwo = json.List[1].Dictionary["aNumber"].Int;
+    int fourtytwo = json.List[2].Dictionary["aNumber"];
+    var fourtytwo = (int)json.List[2].Dictionary["aNumber"];
+    var fourtytwo = json.List[2].Dictionary["aNumber"].Int;
 
-Or you may use Javascript notation (Array/Object instead of List/Dictionary ) for the same result: 
+No exceptions in index notation, just a default 0 or empty string:
 
-    int fourtytwo = json.Array[1].Object["aNumber"];
+    int zero = root[1000]["noNumber"];
+
+You can of course interate over a List:
+    for (int i = 0; i < root.AsList.Count; i++) {
+        string value = root[i];
+    }
+
+And a Dictionary:");
+    foreach (var pair in root[2].AsDictionary) {
+        //
+    }
 
 Dive deep into this JSON with a single line of code:
 
@@ -30,7 +42,7 @@ Dive deep into this JSON with a single line of code:
         }, { 
             aInt: 44, 
             bLong: 45000000000, 
-            cString: \"46\"
+            cString: "46"
         }, { 
             aList: [ 
                 { aInt: 47, bString: '48' }, 
@@ -39,10 +51,10 @@ Dive deep into this JSON with a single line of code:
         }
     ]";
 
-Using JavaScript notation (keywords Array and Object):
+Using indexer notation:
 
-     41  = (long) new JsonTree.Node(data).Array[0].Object["aInt"]
-    "50" = (string) new JsonTree.Node(data).Array[2].Object["aList"].Array[1].Object["bString"]
+     41  = (long) new JsonTree.Node(data)[0]["aInt"]
+    "50" = (string) new JsonTree.Node(data)[2]["aList"][1]["bString"]
 
 Using CLR notation (List and Dictionary):
 
@@ -53,8 +65,3 @@ Using standard enumerators on CLR objects:
 
      41  = (long) new JsonTree.Node(data).List.ElementAt(0).Dictionary.ElementAt(0).Value
     "50" = (string) new JsonTree.Node(data).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(1).Value
-
-Using fail save accessors which do not throw exceptions for missing indexes:
-
-     41  = (long) new JsonTree.Node(data).List.Get(0).Dictionary.Get("aInt")
-    "50" = (string) new JsonTree.Node(data).List.Get(2).Dictionary.Get("aList").List.Get(1).Dictionary.Get("bString")
