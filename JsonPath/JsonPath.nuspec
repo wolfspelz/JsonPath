@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>1.0.1</version>
+    <title>JsonPath</title>
+    <authors>Heiner Wolf</authors>
+    <owners>Heiner Wolf</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>JsonPath Class Library: Inspect values in JSON strings with single line expressions and plain old CLR objects without using foreach/if to extract values from JSON. Extract the 42 from ["first",{"aString":"HelloWorld","aNumber":42}] with C# expression: json.List[1].Dictionary["aNumber"].Int</description>
+    <releaseNotes>New</releaseNotes>
+    <projectUrl>https://github.com/wolfspelz/JsonPath</projectUrl>
+    <copyright>Copyright 2016</copyright>
+    <tags>JSON,Parser,JsonPath,XPath,POCO</tags>
+  </metadata>
+</package>
