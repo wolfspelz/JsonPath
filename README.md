@@ -22,7 +22,7 @@ No exceptions in index notation, just a default 0 or empty string:
 
     int zero = root[1000]["noNumber"];
 
-You can of course interate over a List:
+Of course, you can iterate over a List:
 
     for (int i = 0; i < json.AsList.Count; i++) {
         string value = root[i];
