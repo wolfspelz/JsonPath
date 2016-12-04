@@ -41,9 +41,7 @@ namespace JsonPathDemo
                 Console.WriteLine("  root[2][\"" + pair.Key + "\"] = " + pair.Value);
             }
 
-            Console.WriteLine("");
-            Console.Write("Press <enter>");
-            var rl = Console.ReadLine();
+            Console.WriteLine(""); Console.Write("Press <enter>"); Console.ReadLine();
         }
     }
 }
