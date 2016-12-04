@@ -23,14 +23,14 @@ No exceptions in index notation, just a default 0 or empty string:
     int zero = root[1000]["noNumber"];
 
 You can of course interate over a List:
+
     for (int i = 0; i < json.AsList.Count; i++) {
         string value = root[i];
     }
 
-And a Dictionary:");
-    foreach (var pair in json[2].AsDictionary) {
-        //
-    }
+And a Dictionary:
+
+    foreach (var pair in json[2].AsDictionary) {}
 
 Dive deep into this JSON with a single line of code:
 
