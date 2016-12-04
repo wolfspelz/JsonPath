@@ -9,7 +9,7 @@ namespace JsonPathDemo
             Console.WriteLine("JsonPath Demo");
             Console.WriteLine("-------------");
             Console.WriteLine("");
-            Console.WriteLine("Goal: extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath fpr XML, but for JSON and type safe.");
+            Console.WriteLine("Goal: extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath for XML, but for JSON and type safe.");
             Console.WriteLine("");
 
             const string json = "[\"first\",\"second\",{\"aString\":\"Hello World\",\"aNumber\":42}]";

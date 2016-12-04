@@ -1,15 +1,16 @@
 JsonPath
 ========
 
-Goal: extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath fpr XML, but for JSON and type safe.
+Goal: extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath for XML, but for JSON and type safe.
 
 Extract the 42 from:
 
     [ "first", "second", { "aString": "Hello World", "aNumber": 42 } ]
 
-With C# expressions:
+With C# expression:
 
-    int fourtytwo = root[2]["aNumber"];
+    var json = new Node(data);
+    int fourtytwo = json[2]["aNumber"];
 
 If you want to be more verbose:
 
@@ -22,12 +23,12 @@ No exceptions in index notation, just a default 0 or empty string:
     int zero = root[1000]["noNumber"];
 
 You can of course interate over a List:
-    for (int i = 0; i < root.AsList.Count; i++) {
+    for (int i = 0; i < json.AsList.Count; i++) {
         string value = root[i];
     }
 
 And a Dictionary:");
-    foreach (var pair in root[2].AsDictionary) {
+    foreach (var pair in json[2].AsDictionary) {
         //
     }
 
@@ -51,7 +52,7 @@ Dive deep into this JSON with a single line of code:
         }
     ]";
 
-Using indexer notation:
+Using index notation:
 
      41  = (long) new JsonTree.Node(data)[0]["aInt"]
     "50" = (string) new JsonTree.Node(data)[2]["aList"][1]["bString"]
