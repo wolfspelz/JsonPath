@@ -3,6 +3,8 @@ JsonPath
 
 Goal: extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath for XML, but for JSON and type safe.
 
+Nuget: https://www.nuget.org/packages/JsonPath
+
 Extract the 42 from:
 
     [ "1st", "2nd", { "aString": "Hello World", "aNumber": 42 } ]
