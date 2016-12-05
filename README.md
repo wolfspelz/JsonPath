@@ -7,8 +7,8 @@ Nuget: https://www.nuget.org/packages/JsonPath
 
 Requirements:
 
-*.NET > 3.5
-*[Json.NET](https://www.nuget.org/packages/Newtonsoft.Json)
+* .NET > 3.5
+* [Json.NET](https://www.nuget.org/packages/Newtonsoft.Json)
 
 Extract the 42 from:
 
