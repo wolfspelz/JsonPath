@@ -20,7 +20,7 @@ If you want to be more explicit:
 
 Invalid key: no exception, just a default 0, an empty string or an empty list:
 
-    int zero = root[1000]["noNumber"];
+    int zero = json[1000]["noNumber"];
 
 Of course, you can foreach a dictionary (aka JS object):
 
@@ -29,7 +29,7 @@ Of course, you can foreach a dictionary (aka JS object):
 And iterate over a list (aka JS array):
 
     for (int i = 0; i < json.Count; i++) {
-        string value = root[i];
+        string value = json[i];
     }
 
 You can even LINQ it:

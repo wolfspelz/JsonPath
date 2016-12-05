@@ -11,6 +11,6 @@
     <releaseNotes>New</releaseNotes>
     <projectUrl>https://github.com/wolfspelz/JsonPath</projectUrl>
     <copyright>Copyright 2016</copyright>
-    <tags>JSON,Parser,JsonPath,XPath,POCO</tags>
+    <tags>JSON,Parser,JsonPath,XPath,POCO,Linq,Json.NET</tags>
   </metadata>
 </package>
