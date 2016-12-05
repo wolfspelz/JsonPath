@@ -5,6 +5,11 @@ Goal: extract values from JSON with single line expressions and simple CLR objec
 
 Nuget: https://www.nuget.org/packages/JsonPath
 
+Requirements:
+
+*.NET > 3.5
+*[Json.NET](https://www.nuget.org/packages/Newtonsoft.Json)
+
 Extract the 42 from:
 
     [ "1st", "2nd", { "aString": "Hello World", "aNumber": 42 } ]
