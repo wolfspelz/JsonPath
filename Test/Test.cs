@@ -57,6 +57,12 @@ namespace Test.JsonPath
         }
 
         [TestMethod]
+        public void FloatFromStringWithInvariantCulture()
+        {
+            Assert.AreEqual(3.14159265358979323, new Node("{\"a\":\"3.14159265358979323\"}").Dictionary.First().Value.AsFloat);
+        }
+
+        [TestMethod]
         public void EmptyNodeForMissingDictionaryKey()
         {
             Assert.AreEqual(0, new Node("{a:41}").AsDictionary.Get("b").AsInt);
@@ -72,32 +78,32 @@ namespace Test.JsonPath
         public void AlternativeNotationsForValueTypes()
         {
             // Arrange
-            const string sIn = "{ a: '41', b: 42, c: true, d: 3.14 }";
+            const string data = "{ a: '41', b: 42, c: true, d: 3.14 }";
 
             // Act
-            var root = new Node(sIn);
+            var json = new Node(data);
 
             // Assert
-            Assert.AreEqual("41", root.AsDictionary["a"].String);
-            Assert.AreEqual(42, root.AsDictionary["b"].Int);
-            Assert.AreEqual(true, root.AsDictionary["c"].Bool);
-            Assert.AreEqual(3.14, root.AsDictionary["d"].Float);
+            Assert.AreEqual("41", json.AsDictionary["a"].String);
+            Assert.AreEqual(42, json.AsDictionary["b"].Int);
+            Assert.AreEqual(true, json.AsDictionary["c"].Bool);
+            Assert.AreEqual(3.14, json.AsDictionary["d"].Float);
 
-            Assert.AreEqual("41", (string)root.AsDictionary["a"]);
-            Assert.AreEqual(42, (long)root.AsDictionary["b"]);
-            Assert.AreEqual(42, (int)root.AsDictionary["b"]);
-            Assert.AreEqual(true, (bool)root.AsDictionary["c"]);
-            Assert.AreEqual(3.14, (double)root.AsDictionary["d"]);
+            Assert.AreEqual("41", (string)json.AsDictionary["a"]);
+            Assert.AreEqual(42, (long)json.AsDictionary["b"]);
+            Assert.AreEqual(42, (int)json.AsDictionary["b"]);
+            Assert.AreEqual(true, (bool)json.AsDictionary["c"]);
+            Assert.AreEqual(3.14, (double)json.AsDictionary["d"]);
 
-            string s = root.AsDictionary["a"];
+            string s = json.AsDictionary["a"];
             Assert.AreEqual("41", s);
-            long l = root.AsDictionary["b"];
+            long l = json.AsDictionary["b"];
             Assert.AreEqual(42, l);
-            int i = root.AsDictionary["b"];
+            int i = json.AsDictionary["b"];
             Assert.AreEqual(42, i);
-            bool b = root.AsDictionary["c"];
+            bool b = json.AsDictionary["c"];
             Assert.AreEqual(true, b);
-            double d = root.AsDictionary["d"];
+            double d = json.AsDictionary["d"];
             Assert.AreEqual(3.14, d);
         }
 
@@ -105,35 +111,70 @@ namespace Test.JsonPath
         public void AlternativeNotationsForStructures()
         {
             // Arrange
-            const string sIn = "{ a: 'a', b: [ 'b0', 'b1' ] }";
+            const string data = "{ a: 'b', c: [ 'c0', 'c1' ] }";
+            var json = new Node(data);
 
-            // Act
-            var root = new Node(sIn);
-
-            // Assert
-            Assert.AreEqual("b0", root.Object["b"].Array[0].AsString);
-            Assert.AreEqual("b0", root.Dictionary["b"].List[0].AsString);
-            Assert.AreEqual("b0", root.AsObject["b"].AsArray[0].AsString);
-            Assert.AreEqual("b0", root.AsDictionary["b"].AsList[0].AsString);
-            Assert.AreEqual("b0", root["b"][0].AsString);
+            // Act, Assert
+            Assert.AreEqual("c0", json.Object["c"].Array[0].AsString);
+            Assert.AreEqual("c0", json.Dictionary["c"].List[0].AsString);
+            Assert.AreEqual("c0", json.Object["c"].Array[0].AsString);
+            Assert.AreEqual("c0", json.Dictionary["c"].List[0].AsString);
+            Assert.AreEqual("c0", json["c"][0].AsString);
         }
 
-        //[TestMethod]
-        //public void Date()
-        //{
-        //    Assert.AreEqual(1245398693390, new Node("/Date(1245398693390)/").Int);
-        //}
+        [TestMethod]
+        public void ListEnumeration()
+        {
+            // Arrange
+            const string data = "{ a: 'b', c: [ 'c0', 'c1' ] }";
+
+            // Act
+            var json = new Node(data);
+
+            // Assert
+            for (int i = 0; i < json["c"].Count; i++) {
+                Assert.AreEqual("c" + i, (string)json["c"][i]);
+            }
+        }
 
         [TestMethod]
-        public void FloatFromStringWithInvariantCulture()
+        public void DictionaryEnumeration()
         {
-            Assert.AreEqual(3.14159265358979323, new Node("{\"a\":\"3.14159265358979323\"}").Dictionary.First().Value.AsFloat);
+            // Arrange
+            const string data = "{ a: 'b', c: [ 'c0', 'c1' ] }";
+
+            // Act
+            var json = new Node(data);
+
+            // Assert
+            foreach (var pair in json) {
+                if (pair.Key == "a") {
+                    Assert.AreEqual("b", (string)pair.Value);
+                }
+                if (pair.Key == "c") {
+                    Assert.IsTrue(pair.Value.IsList);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Linq()
+        {
+            // Arrange
+            const string data = "{ a: 'b', c: [ 'c0', 'c1' ] }";
+
+            // Act
+            var json = new Node(data);
+
+            // Assert
+            Assert.AreEqual("b", json.Where(x => x.Key == "a").Select(x => x.Value).First());
+            Assert.AreEqual("b", (from x in json where x.Key == "a" select x.Value).First());
         }
 
         [TestMethod]
         public void DeserializeTypicalJson()
         {
-            var sJson = @"
+            var data = @"
 [
   {
     aInt: 41,
@@ -168,16 +209,16 @@ namespace Test.JsonPath
 ]
 ";
             // Act
-            var root = new Node(sJson);
+            var json = new Node(data);
 
             // Assert
             Node lastListItem = null;
             string lastMapItemKey = null;
             Node lastMapItemValue = null;
-            foreach (var item in root.List) {
+            foreach (var item in json.List) {
                 lastListItem = item;
             }
-            foreach (var pair in root.List.First().Dictionary) {
+            foreach (var pair in json.List.First().Dictionary) {
                 lastMapItemKey = pair.Key;
                 lastMapItemValue = pair.Value;
             }
@@ -187,43 +228,43 @@ namespace Test.JsonPath
             Assert.AreEqual(lastMapItemValue.AsFloat, 3.14159265358979323);
 
             // Act/Assert
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(0).Key, "aInt");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(0).Value.AsInt, 41);
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(1).Key, "bBool");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(1).Value.AsBool, true);
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(2).Key, "bLong");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(2).Value.AsInt, 42000000000);
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(3).Key, "cString");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(3).Value.AsString, "43");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(4).Key, "dFloat");
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(0).Key, "aInt");
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(0).Value.AsInt, 41);
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(1).Key, "bBool");
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(1).Value.AsBool, true);
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(2).Key, "bLong");
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(2).Value.AsInt, 42000000000);
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(3).Key, "cString");
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(3).Value.AsString, "43");
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(4).Key, "dFloat");
 
-            Assert.AreEqual(new Node(sJson).List.ElementAt(0).Dictionary.ElementAt(4).Value.AsFloat, 3.14159265358979323);
-            Assert.AreEqual(new Node(sJson).List[0].Dictionary.ElementAt(4).Value.AsFloat, 3.14159265358979323);
-            Assert.AreEqual(new Node(sJson).Array[0].Object.ElementAt(4).Value.AsFloat, 3.14159265358979323);
+            Assert.AreEqual(json.List.ElementAt(0).Dictionary.ElementAt(4).Value.AsFloat, 3.14159265358979323);
+            Assert.AreEqual(json.List[0].Dictionary.ElementAt(4).Value.AsFloat, 3.14159265358979323);
+            Assert.AreEqual(json.Array[0].Object.ElementAt(4).Value.AsFloat, 3.14159265358979323);
 
-            Assert.AreEqual(new Node(sJson).List.ElementAt(1).Dictionary.ElementAt(0).Key, "aInt");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(1).Dictionary.ElementAt(0).Value.AsInt, 44);
-            Assert.AreEqual(new Node(sJson).List.ElementAt(1).Dictionary.ElementAt(1).Key, "bLong");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(1).Dictionary.ElementAt(1).Value.AsInt, 45000000000);
-            Assert.AreEqual(new Node(sJson).List.ElementAt(1).Dictionary.ElementAt(2).Key, "cString");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(1).Dictionary.ElementAt(2).Value.AsString, "46");
+            Assert.AreEqual(json.List.ElementAt(1).Dictionary.ElementAt(0).Key, "aInt");
+            Assert.AreEqual(json.List.ElementAt(1).Dictionary.ElementAt(0).Value.AsInt, 44);
+            Assert.AreEqual(json.List.ElementAt(1).Dictionary.ElementAt(1).Key, "bLong");
+            Assert.AreEqual(json.List.ElementAt(1).Dictionary.ElementAt(1).Value.AsInt, 45000000000);
+            Assert.AreEqual(json.List.ElementAt(1).Dictionary.ElementAt(2).Key, "cString");
+            Assert.AreEqual(json.List.ElementAt(1).Dictionary.ElementAt(2).Value.AsString, "46");
 
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Key, "aList");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.Count, 2);
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(0).Dictionary.ElementAt(0).Key, "aInt");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(0).Dictionary.ElementAt(0).Value.AsInt, 47);
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(0).Dictionary.ElementAt(1).Key, "bString");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(0).Dictionary.ElementAt(1).Value.AsString, "48");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(0).Key, "aInt");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(0).Value.AsInt, 49);
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(1).Key, "bString");
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Key, "aList");
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Value.List.Count, 2);
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(0).Dictionary.ElementAt(0).Key, "aInt");
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(0).Dictionary.ElementAt(0).Value.AsInt, 47);
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(0).Dictionary.ElementAt(1).Key, "bString");
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(0).Dictionary.ElementAt(1).Value.AsString, "48");
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(0).Key, "aInt");
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(0).Value.AsInt, 49);
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(1).Key, "bString");
 
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(1).Value.AsString, "50");
-            Assert.AreEqual(new Node(sJson).List[2].Dictionary["aList"].List[1].Dictionary["bString"].AsString, "50");
-            Assert.AreEqual(new Node(sJson).Array[2].Object["aList"].Array[1].Object["bString"].AsString, "50");
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(1).Value.AsString, "50");
+            Assert.AreEqual(json.List[2].Dictionary["aList"].List[1].Dictionary["bString"].AsString, "50");
+            Assert.AreEqual(json.Array[2].Object["aList"].Array[1].Object["bString"].AsString, "50");
 
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(1).Key, "bMap");
-            Assert.AreEqual(new Node(sJson).List.ElementAt(2).Dictionary.ElementAt(1).Value.Dictionary.Count, 2);
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(1).Key, "bMap");
+            Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(1).Value.Dictionary.Count, 2);
         }
 
     }

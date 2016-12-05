@@ -5,64 +5,69 @@ Goal: extract values from JSON with single line expressions and simple CLR objec
 
 Extract the 42 from:
 
-    [ "first", "second", { "aString": "Hello World", "aNumber": 42 } ]
+    [ "1st", "2nd", { "aString": "Hello World", "aNumber": 42 } ]
 
 With C# expression:
 
     var json = new Node(data);
     int fourtytwo = json[2]["aNumber"];
 
-If you want to be more verbose:
+If you want to be more explicit:
 
-    int fourtytwo = json.List[2].Dictionary["aNumber"];
-    var fourtytwo = (int)json.List[2].Dictionary["aNumber"];
-    var fourtytwo = json.List[2].Dictionary["aNumber"].Int;
+    int fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsInt;
+    var fourtytwo = (int)json.AsList[2].AsDictionary["aNumber"];
+    var fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsInt;
 
-No exceptions in index notation, just a default 0 or empty string:
+Invalid key: no exception, just a default 0, an empty string or an empty list:
 
     int zero = root[1000]["noNumber"];
 
-Of course, you can iterate over a List:
+Of course, you can foreach a dictionary (aka JS object):
 
-    for (int i = 0; i < json.AsList.Count; i++) {
+    foreach (var pair in json[2]) {}
+
+And iterate over a list (aka JS array):
+
+    for (int i = 0; i < json.Count; i++) {
         string value = root[i];
     }
 
-And a Dictionary:
+You can even LINQ it:
 
-    foreach (var pair in json[2].AsDictionary) {}
+    json[2].Where(pair => pair.Key == "aNumber").First().Value
+    (from x in json[2] where x.Key == "aNumber" select x.Value).First()
 
 Dive deep into this JSON with a single line of code:
 
     var data = "[ { 
             aInt: 41, 
-            bBool: true, 
             bLong: 42000000000, 
-            cString: '43', 
-            dFloat: 3.14159265358979323 
+            cBool: true, 
+            dString: '43', 
+            eFloat: 3.14159265358979323 
         }, { 
-            aInt: 44, 
-            bLong: 45000000000, 
-            cString: "46"
+            fInt: 44, 
+            gLong: 45000000000, 
+            hString: "46"
         }, { 
-            aList: [ 
-                { aInt: 47, bString: '48' }, 
-                { aInt: 49, bString: '50' } ], 
-            bMap: { aInt: 51, bString: '52' } 
+            iList: [ 
+                { jInt: 47, kString: '48' }, 
+                { lInt: 49, mString: '50' }
+            ], 
         }
     ]";
 
 Using index notation:
 
      41  = (long) new JsonTree.Node(data)[0]["aInt"]
-    "50" = (string) new JsonTree.Node(data)[2]["aList"][1]["bString"]
+    "50" = (string) new JsonTree.Node(data)[2]["iList"][1]["mString"]
 
-Using CLR notation (List and Dictionary):
+Using explicit notation:
 
-     41  = (long) new JsonTree.Node(data).List[0].Dictionary["aInt"]
-    "50" = (string) new JsonTree.Node(data).List[2].Dictionary["aList"].List[1].Dictionary["bString"]
+     41  = (long) new JsonTree.Node(data).AsList[0].AsDictionary["aInt"].AsInt
+    "50" = (string) new JsonTree.Node(data).AsList[2].AsDictionary["iList"].List[1].Dictionary["mString"].AsString
 
 Using standard enumerators on CLR objects:
 
-     41  = (long) new JsonTree.Node(data).List.ElementAt(0).Dictionary.ElementAt(0).Value
-    "50" = (string) new JsonTree.Node(data).List.ElementAt(2).Dictionary.ElementAt(0).Value.List.ElementAt(1).Dictionary.ElementAt(1).Value
+     41  = (long) new JsonTree.Node(data).AsList.ElementAt(0).AsDictionary.ElementAt(0).Value
+    "50" = (string) new JsonTree.Node(data).AsList.ElementAt(2).AsDictionary.ElementAt(0).Value.AsList.ElementAt(1).AsDictionary.ElementAt(1).Value

@@ -27,7 +27,7 @@ namespace JsonPath
         }
     }
 
-    public class Node //: IEnumerable<KeyValuePair<string, Node>>, IEnumerable<Node>
+    public class Node : IEnumerable<KeyValuePair<string, Node>>
     {
         public enum Type { Empty, List, Dictionary, Int, Bool, String, Float }
 
@@ -69,10 +69,23 @@ namespace JsonPath
         public Node Get(int index) { return AsList.Get(index); }
         public Node Get(string key) { return AsDictionary.Get(key); }
 
-        // Problem: Dictionary interator seems to hide the List iterator. No way to decide which one is appropriate
-        //IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<KeyValuePair<string, Node>>)AsDictionary).GetEnumerator(); }
-        //IEnumerator<Node> IEnumerable<Node>.GetEnumerator() { return ((IEnumerable<Node>)AsList).GetEnumerator(); }
-        //public IEnumerator<KeyValuePair<string, Node>> GetEnumerator() { return ((IEnumerable<KeyValuePair<string, Node>>)AsDictionary).GetEnumerator(); }
+        // Iteration
+        public IEnumerator<KeyValuePair<string, Node>> GetEnumerator()
+        {
+            return ((IEnumerable<KeyValuePair<string, Node>>)AsDictionary).GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<KeyValuePair<string, Node>>)AsDictionary).GetEnumerator();
+        }
+        public long Count
+        {
+            get {
+                if (IsDictionary) { return AsDictionary.Count; }
+                if (IsList) { return AsList.Count; }
+                return 0;
+            }
+        }
 
         public long AsInt
         {
@@ -133,9 +146,9 @@ namespace JsonPath
                     throw new Exception("Wrong node type: trying to read " + Type.String.ToString() + " from " + _type.ToString());
                 } else {
                     if (IsDictionary) {
-                        return "<Dictionary>";
+                        return "<JSObject>";
                     } else if (IsList) {
-                        return "<List>";
+                        return "<JSArray>";
                     }
                     return "";
                 }
@@ -162,6 +175,8 @@ namespace JsonPath
                 }
             }
         }
+
+        public string Key { get; set; }
 
         public Node(Type type, object value = null)
         {
