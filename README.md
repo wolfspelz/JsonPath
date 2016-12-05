@@ -5,10 +5,14 @@ Goal: extract values from JSON with single line expressions and simple CLR objec
 
 Nuget: https://www.nuget.org/packages/JsonPath
 
+Installation from the Package Manager Console: 
+
+    PM> Install-Package JsonPath
+
 Requirements:
 
 * .NET >= 3.5
-* [Json.NET](https://www.nuget.org/packages/Newtonsoft.Json)
+* [Json.NET](https://www.nuget.org/packages/Newtonsoft.Json) (aka Newtonsoft.Json)
 
 Extract the 42 from:
 
