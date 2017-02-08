@@ -1,4 +1,4 @@
-sJsonPath
+JsonPath
 ========
 
 Nuget: https://www.nuget.org/packages/JsonPath
