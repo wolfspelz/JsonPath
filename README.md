@@ -32,7 +32,7 @@ From the Package Manager Console:
 * .NET >= 3.5
 * [Json.NET](https://www.nuget.org/packages/Newtonsoft.Json) (aka Newtonsoft.Json)
 
-### More Examples
+### Syntax Examples
 
 Extract the 42 from:
 
@@ -68,8 +68,7 @@ You can even LINQ it:
     json[2].Where(pair => pair.Key == "aNumber").First().Value
     (from x in json[2] where x.Key == "aNumber" select x.Value).First()
 
-Same u
-### Example
+### More Examples
 
 Dive deep into this JSON with a single line of code:
 
