@@ -11,6 +11,16 @@ Extract values from JSON:
 - Like XPath for XML, but for JSON and type safe. 
 - A wrapper for Json.NET. 
 
+### Example
+
+Extract the 42 from:
+
+    [ "1st", "2nd", { "aString": "Hello World", "aNumber": 42 } ]
+    
+with C#:
+
+    int fourtytwo = new Node(data)[2]["aNumber"];
+    
 ### Installation
 
 From the Package Manager Console: 
@@ -22,22 +32,22 @@ From the Package Manager Console:
 * .NET >= 3.5
 * [Json.NET](https://www.nuget.org/packages/Newtonsoft.Json) (aka Newtonsoft.Json)
 
-### Example
+### More Examples
 
 Extract the 42 from:
 
     [ "1st", "2nd", { "aString": "Hello World", "aNumber": 42 } ]
 
-C# expression:
+You can do:
 
     var json = new Node(data);
     int fourtytwo = json[2]["aNumber"];
 
 If you want to be more explicit:
 
-    int fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsInt;
-    var fourtytwo = (int)json.AsList[2].AsDictionary["aNumber"];
-    var fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsInt;
+    var fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsInt; // will return (int) 42
+    var fourtytwo = (int)json.AsList[2].AsDictionary["aNumber"]; // will return (int) 42
+    var fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsString; // will return (string) "42"
 
 Invalid keys do not throw exceptions. They return 0, empty string, or empty list:
 
