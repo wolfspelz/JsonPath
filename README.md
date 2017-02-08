@@ -5,7 +5,11 @@ Nuget: https://www.nuget.org/packages/JsonPath
 
 ### Goal
 
-Extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath for XML, but for JSON and type safe.
+Extract values from JSON:
+- with single line expressions and simple CLR objects 
+- without foreach/if/cast constructs. 
+- Like XPath for XML, but for JSON and type safe. 
+- A wrapper for Json.NET. 
 
 ### Installation
 
