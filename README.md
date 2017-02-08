@@ -1,4 +1,4 @@
-JsonPath
+sJsonPath
 ========
 
 Nuget: https://www.nuget.org/packages/JsonPath
@@ -35,7 +35,7 @@ If you want to be more explicit:
     var fourtytwo = (int)json.AsList[2].AsDictionary["aNumber"];
     var fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsInt;
 
-Invalid key do not throw exceptions. They return 0, empty string, and empty list:
+Invalid keys do not throw exceptions. They return 0, empty string, or empty list:
 
     int zero = json[1000]["noNumber"];
 
@@ -54,6 +54,7 @@ You can even LINQ it:
     json[2].Where(pair => pair.Key == "aNumber").First().Value
     (from x in json[2] where x.Key == "aNumber" select x.Value).First()
 
+Same u
 ### Example
 
 Dive deep into this JSON with a single line of code:
@@ -81,12 +82,12 @@ Using index notation:
      41  = (long) new JsonTree.Node(data)[0]["aInt"]
     "50" = (string) new JsonTree.Node(data)[2]["iList"][1]["mString"]
 
-Using explicit notation:
+The same with explicit notation:
 
      41  = (long) new JsonTree.Node(data).AsList[0].AsDictionary["aInt"].AsInt
     "50" = (string) new JsonTree.Node(data).AsList[2].AsDictionary["iList"].List[1].Dictionary["mString"].AsString
 
-Using standard enumerators on CLR objects:
+The same with standard enumerators on CLR objects:
 
      41  = (long) new JsonTree.Node(data).AsList.ElementAt(0).AsDictionary.ElementAt(0).Value
     "50" = (string) new JsonTree.Node(data).AsList.ElementAt(2).AsDictionary.ElementAt(0).Value.AsList.ElementAt(1).AsDictionary.ElementAt(1).Value
