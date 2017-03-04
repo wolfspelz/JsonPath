@@ -104,3 +104,5 @@ The same with standard enumerators on CLR objects:
 
      41  = (long) new JsonTree.Node(data).AsList.ElementAt(0).AsDictionary.ElementAt(0).Value
     "50" = (string) new JsonTree.Node(data).AsList.ElementAt(2).AsDictionary.ElementAt(0).Value.AsList.ElementAt(1).AsDictionary.ElementAt(1).Value
+
+(testing VSGit)
