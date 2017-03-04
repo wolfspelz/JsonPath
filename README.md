@@ -1,20 +1,30 @@
 JsonPath
 ========
 
-Goal: extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath for XML, but for JSON and type safe.
-
 Nuget: https://www.nuget.org/packages/JsonPath
 
-Requirements:
+### Goal
+
+Extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath for XML, but for JSON and type safe.
+
+### Installation
+
+From the Package Manager Console: 
+
+    PM> Install-Package JsonPath
+
+### Requirements:
 
 * .NET >= 3.5
-* [Json.NET](https://www.nuget.org/packages/Newtonsoft.Json)
+* [Json.NET](https://www.nuget.org/packages/Newtonsoft.Json) (aka Newtonsoft.Json)
+
+### Example
 
 Extract the 42 from:
 
     [ "1st", "2nd", { "aString": "Hello World", "aNumber": 42 } ]
 
-With C# expression:
+C# expression:
 
     var json = new Node(data);
     int fourtytwo = json[2]["aNumber"];
@@ -25,7 +35,7 @@ If you want to be more explicit:
     var fourtytwo = (int)json.AsList[2].AsDictionary["aNumber"];
     var fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsInt;
 
-Invalid key: no exception, just a default 0, an empty string or an empty list:
+Invalid key do not throw exceptions. They return 0, empty string, and empty list:
 
     int zero = json[1000]["noNumber"];
 
@@ -43,6 +53,8 @@ You can even LINQ it:
 
     json[2].Where(pair => pair.Key == "aNumber").First().Value
     (from x in json[2] where x.Key == "aNumber" select x.Value).First()
+
+### Example
 
 Dive deep into this JSON with a single line of code:
 
