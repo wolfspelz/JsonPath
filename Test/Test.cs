@@ -267,5 +267,151 @@ namespace Test.JsonPath
             Assert.AreEqual(json.List.ElementAt(2).Dictionary.ElementAt(1).Value.Dictionary.Count, 2);
         }
 
+        [TestMethod]
+        public void UpperLowerCamelCaseIndependentKeys()
+        {
+            // Arrange
+            const string data = "{ a: 'a', B: 'B', CdEf: 'CdEf', ghIj: 'ghIj'  }";
+            var json = new Node(data);
+
+            // Act, Assert
+            Assert.AreEqual("a", json["a"].AsString);
+            Assert.AreEqual("a", json["A"].AsString);
+            Assert.AreEqual("B", json["b"].AsString);
+            Assert.AreEqual("B", json["B"].AsString);
+            Assert.AreEqual("CdEf", json["cdEf"].AsString);
+            Assert.AreEqual("CdEf", json["CdEf"].AsString);
+            Assert.AreEqual("ghIj", json["ghIj"].AsString);
+            Assert.AreEqual("ghIj", json["GhIj"].AsString);
+        }
+
+        //[TestMethod]
+        public void LowerUndescorevsUpperCamelCaseIndependentKeys()
+        {
+            // Arrange
+            const string data = "{ a: 'a', B: 'B', CdEf: 'CdEf', gh_ij: 'gh_ij'  }";
+            var json = new Node(data);
+
+            // Act, Assert
+            Assert.AreEqual("a", json["a"].AsString);
+            Assert.AreEqual("a", json["A"].AsString);
+            Assert.AreEqual("B", json["b"].AsString);
+            Assert.AreEqual("B", json["B"].AsString);
+            Assert.AreEqual("CdEf", json["cdEf"].AsString);
+            Assert.AreEqual("CdEf", json["cd_ef"].AsString);
+            Assert.AreEqual("gh_ij", json["GhIj"].AsString);
+            Assert.AreEqual("gh_ij", json["gh_ij"].AsString);
+        }
+
+        [TestClass]
+        public class JsonPathSerializerTest
+        {
+            [TestMethod]
+            public void JsonPath_serializes_simple_JSON()
+            {
+                // Arrange
+                const string sIn = "{ a: 'a', b: 1, c: true, d: 1.11, e: [ 'e1', 'e2' ], f: { f1: 'f1', f2: 'f2' } }";
+                var root = new Node(sIn);
+
+                // Act
+                string sOut = root.ToJson();
+
+                // Assert
+                Assert.IsFalse(String.IsNullOrEmpty(sOut));
+            }
+
+            [TestMethod]
+            public void JsonPath_serializes_array_of_dictionary()
+            {
+                // Arrange
+                const string sIn = "[ { 'param': { 'name': 'defaultsequence', 'value': 'idle' }}, { 'sequence': { 'group': 'idle', 'name': 'still', 'type': 'status', 'probability': '1000', 'in': 'standard', 'out': 'standard', 'src': 'idle.gif' }} ]";
+                var root = new Node(sIn);
+
+                // Act
+                string sOut = root.ToJson();
+
+                // Assert
+                Assert.IsFalse(String.IsNullOrEmpty(sOut));
+            }
+
+            [TestMethod]
+            public void JsonPath_Serializer_ToString_creates_human_readable_JS_with_few_double_quotes()
+            {
+                // Arrange
+                const string sIn = "{ a: 'b\\'c b\"c', b: 1, c: true, d: false, e: 1.11, f: [ 'g', 'h' ], i: { j: 'k', l: 2, m: [ 1, 2 ], n: { o: 3, p: 4, q: { r: 's', t: [ 1, 2, 3 ], u: [ { v: 1, w: 2 }, { x: 3, y: 4 } ] } } } }";
+                var root = new Node(sIn);
+
+                // Act
+                string sOut = root.ToString();
+
+                // Assert
+                Assert.AreEqual(sIn, sOut);
+            }
+
+            [TestMethod]
+            public void JsonPath_Serializer_defaults_to_double_quotes_and_quoted_keys_and_no_formatting()
+            {
+                // Arrange
+                const string sIn = "{\"a\":\"a\",\"b\":1,\"c\":true,\"d\":1.11,\"e\":[\"e1\",\"e2\"],\"f\":{\"f1\":\"f1\",\"f2\":\"f2\"}}";
+                var root = new Node(sIn);
+
+                // Act
+                string sOut = root.ToJson();
+
+                // Assert
+                Assert.AreEqual(sIn, sOut);
+            }
+
+            [TestMethod]
+            public void JsonPath_serializes_deserialized_data_with_added_node()
+            {
+                // Arrange
+                const string sIn = @"
+[
+  {
+    aInt: 41,
+    bBool: true,
+    cLong: 42000000000,
+    dString: '43',
+    eFloat: 3.14159265358979323
+  },
+  {
+    fInt: 44,
+    gLong: 45000000000,
+    hString: ""46""
+  },
+  {
+    iList:
+    [
+      {
+        jInt: 47,
+        kString: 'true'
+      },
+      {
+        lInt: 49,
+        mString: '50'
+      }
+    ],
+    nMap:
+    {
+      oInt: 51,
+      pString: '52'
+    }
+  }
+]
+";
+                var root = new Node(sIn);
+
+                // Act
+                root.List.ElementAt(2).Dictionary.Add("new child", new Node(Node.Type.String) { Value = "new string" });
+
+                // Assert
+                string sOut = root.ToJson();
+                Assert.IsTrue(sOut.Contains("\"new child\":\"new string\""));
+                var check = new Node(sOut);
+                Assert.AreEqual(check.List.ElementAt(2).Dictionary["new child"].String, "new string");
+            }
+
+        }
     }
 }

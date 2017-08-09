@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+// ReSharper disable UnusedMember.Global
 
+// ReSharper disable once CheckNamespace
 namespace JsonPath
 {
     public class Dictionary : Dictionary<string, Node>
@@ -12,8 +14,43 @@ namespace JsonPath
             if (ContainsKey(key)) {
                 return this[key];
             }
+
+            var lowerKey = ToLowerCamel(key);
+            foreach (var prop in this.Keys) {
+                if (ToLowerCamel(prop) == lowerKey) {
+                    return this[prop];
+                }
+            }
+
+            //var underscoreKey = ToUndeescoreLower(key);
+            //foreach (var prop in this.Keys) {
+            //    if (ToUndeescoreLower(prop) == lowerKey) {
+            //        return this[prop];
+            //    }
+            //}
+
             return new Node(Node.Type.Empty);
         }
+
+        private string ToLowerCamel(string s)
+        {
+            var converted = "";
+
+            if (s.Length > 0) {
+                converted += s.ToLower()[0];
+                converted += s.Substring(1);
+            }
+
+            return converted;
+        }
+
+        public void Add(string key, string value) { base.Add(key, new Node(Node.Type.String, value)); }
+        public void Add(string key, int value) { base.Add(key, new Node(Node.Type.Int, value)); }
+        public void Add(string key, long value) { base.Add(key, new Node(Node.Type.Int, value)); }
+        public void Add(string key, float value) { base.Add(key, new Node(Node.Type.Float, value)); }
+        public void Add(string key, double value) { base.Add(key, new Node(Node.Type.Float, value)); }
+        public void Add(string key, bool value) { base.Add(key, new Node(Node.Type.Bool, value)); }
+        public new void Add(string key, Node node) { base.Add(key, node); }
     }
 
     public class List : List<Node>
@@ -32,31 +69,32 @@ namespace JsonPath
         public enum Type { Empty, List, Dictionary, Int, Bool, String, Float }
 
         public object Value;
+        // ReSharper disable once MemberInitializerValueIgnored
         private readonly Type _type = Type.Empty;
         private bool _throwExceptionIfConversionFails = false;
 
-        public bool IsEmpty { get { return _type == Type.Empty; } }
-        public bool IsList { get { return _type == Type.List; } }
-        public bool IsDictionary { get { return _type == Type.Dictionary; } }
-        public bool IsInt { get { return _type == Type.Int; } }
-        public bool IsBool { get { return _type == Type.Bool; } }
-        public bool IsString { get { return _type == Type.String; } }
-        public bool IsFloat { get { return _type == Type.Float; } }
+        public bool IsEmpty => _type == Type.Empty;
+        public bool IsList => _type == Type.List;
+        public bool IsDictionary => _type == Type.Dictionary;
+        public bool IsInt => _type == Type.Int;
+        public bool IsBool => _type == Type.Bool;
+        public bool IsString => _type == Type.String;
+        public bool IsFloat => _type == Type.Float;
 
-        public List AsList { get { return IsList ? (List)Value : new List(); } }
-        public Dictionary AsDictionary { get { return IsDictionary ? (Dictionary)Value : new Dictionary(); } }
+        public List AsList => IsList ? (List)Value : new List();
+        public Dictionary AsDictionary => IsDictionary ? (Dictionary)Value : new Dictionary();
 
         // Aliases
-        public List List { get { return AsList; } }
-        public Dictionary Dictionary { get { return AsDictionary; } }
-        public List AsArray { get { return AsList; } }
-        public List Array { get { return AsList; } }
-        public Dictionary AsObject { get { return AsDictionary; } }
-        public Dictionary Object { get { return AsDictionary; } }
-        public long Int { get { return AsInt; } }
-        public bool Bool { get { return AsBool; } }
-        public string String { get { return AsString; } }
-        public double Float { get { return AsFloat; } }
+        public List List => AsList;
+        public Dictionary Dictionary => AsDictionary;
+        public List AsArray => AsList;
+        public List Array => AsList;
+        public Dictionary AsObject => AsDictionary;
+        public Dictionary Object => AsDictionary;
+        public long Int => AsInt;
+        public bool Bool => AsBool;
+        public string String => AsString;
+        public double Float => AsFloat;
         public static implicit operator int(Node node) { return (int)node.AsInt; }
         public static implicit operator long(Node node) { return node.AsInt; }
         public static implicit operator bool(Node node) { return node.AsBool; }
@@ -64,8 +102,8 @@ namespace JsonPath
         public static implicit operator double(Node node) { return node.AsFloat; }
         public static implicit operator List(Node node) { return node.AsList; }
         public static implicit operator Dictionary(Node node) { return node.AsDictionary; }
-        public Node this[int index] { get { return AsList.Get(index); } }
-        public Node this[string key] { get { return AsDictionary.Get(key); } }
+        public Node this[int index] => AsList.Get(index);
+        public Node this[string key] => AsDictionary.Get(key);
         public Node Get(int index) { return AsList.Get(index); }
         public Node Get(string key) { return AsDictionary.Get(key); }
 
@@ -161,9 +199,9 @@ namespace JsonPath
                 if (IsFloat) {
                     return (double)Value;
                 } else if (IsInt) {
-                    return (double)AsInt;
+                    return AsInt;
                 } else if (IsString) {
-                    double result = 0.0;
+                    double result;
                     if (Double.TryParse(AsString, NumberStyles.Any, CultureInfo.InvariantCulture, out result)) {
                         return Double.Parse(AsString, CultureInfo.InvariantCulture);
                     }
@@ -184,18 +222,36 @@ namespace JsonPath
 
             if (value != null) {
                 switch (type) {
-                    case Type.Int: Value = Convert.ToInt64(value); break;
-                    case Type.Float: Value = Convert.ToDouble(value); break;
-                    default: Value = value; break;
+                case Type.Int:
+                    Value = Convert.ToInt64(value);
+                    break;
+                case Type.Float:
+                    Value = Convert.ToDouble(value);
+                    break;
+                default:
+                    Value = value;
+                    break;
                 }
             } else {
                 switch (type) {
-                    case Type.List: Value = new List(); break;
-                    case Type.Dictionary: Value = new Dictionary(); break;
-                    case Type.Int: Value = 0; break;
-                    case Type.Bool: Value = false; break;
-                    case Type.String: Value = ""; break;
-                    case Type.Float: Value = 0.0; break;
+                case Type.List:
+                    Value = new List();
+                    break;
+                case Type.Dictionary:
+                    Value = new Dictionary();
+                    break;
+                case Type.Int:
+                    Value = 0;
+                    break;
+                case Type.Bool:
+                    Value = false;
+                    break;
+                case Type.String:
+                    Value = "";
+                    break;
+                case Type.Float:
+                    Value = 0.0;
+                    break;
                 }
             }
         }
@@ -205,6 +261,22 @@ namespace JsonPath
             var node = Deserializer.FromJson(sJson, options);
             _type = node._type;
             Value = node.Value;
+        }
+
+        public string ToJson(Serializer.Options options)
+        {
+            return Serializer.ToJson(this, options);
+        }
+
+        public string ToJson(bool bFormatted = false, bool bWrapped = false)
+        {
+            return Serializer.ToJson(this, bFormatted, bWrapped);
+        }
+
+        public override string ToString()
+        {
+            var options = new Serializer.Options(bFormatted: true) { EncapsulateKeys = "", EncapsulateStrings = "'" };
+            return Serializer.ToJson(this, options);
         }
     }
 }
