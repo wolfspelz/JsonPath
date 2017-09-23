@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 // ReSharper disable RedundantDefaultMemberInitializer
 // ReSharper disable FieldCanBeMadeReadOnly.Global
@@ -84,6 +85,22 @@ namespace JsonPath
             return ser.Serialize(node);
         }
 
+        static readonly Dictionary<string, string> EscapeStringTable = new Dictionary<string, string>()
+        {
+            { "\\", "\\\\" },
+            { "\r", "\\r" },
+            { "\n", "\\n" },
+            { "\t", "\\t" },
+            { "\b", "\\b" },
+        };
+        private static string EscapeString(StringBuilder data)
+        {
+            foreach (var pair in EscapeStringTable) {
+                data.Replace(pair.Key, pair.Value);
+            }
+            return data.ToString();
+        }
+
         private string Serialize(Node node)
         {
             var sb = new StringBuilder();
@@ -94,7 +111,7 @@ namespace JsonPath
 
             if (node.IsString) {
                 sb.Append(_options.EncapsulateStrings);
-                sb.Append(node.String.Replace(_options.EncapsulateStrings, "\\" + _options.EncapsulateStrings));
+                sb.Append(EscapeString(new StringBuilder(node.String, node.String.Length * 2)).Replace(_options.EncapsulateStrings, "\\" + _options.EncapsulateStrings));
                 sb.Append(_options.EncapsulateStrings);
             }
 
