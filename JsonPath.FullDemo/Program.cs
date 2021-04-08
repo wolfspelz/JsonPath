@@ -58,10 +58,12 @@ namespace JsonPathDemo
 
             Console.WriteLine(Environment.NewLine + Environment.NewLine + "Now, the TextProvider:" + Environment.NewLine);
 
+            Console.WriteLine("In a Controller or the code page of the Razor view creating a PageModel property. Then in the view do:" + Environment.NewLine);
             var Text = new JsonPath.TextProvider(new JsonPath.MemoryDataProvider(), "JsonPathDemo", "en-US", "IndexPage");
             // For demo purposes using an in-memory data provider
-            await Text.Set("Key1", "{ 'myHeader': { 'myTitle': 'Page Title', 'myList': ['Text1', 'Text2'] } }");
-            Console.WriteLine("Use this in a Controller or the code page of the Razor view to create a PageModel property (rather than the 'var' as in this example). Then in the view do:" + Environment.NewLine);
+            await Text.Set("Key1", "{ \"myHeader\": { \"myTitle\": \"Page Title\", \"myList\": [\"Text1\", \"Text2\"] } }");
+
+            Console.WriteLine("With " + await Text.Json(key: "Key1") + Environment.NewLine);
             Console.WriteLine("<h1>text.String(key: \"Key1\", path: \"myHeader/myTitle\")<h1>");
             Console.WriteLine("<ul>");
             Console.WriteLine("  @foreach (var listElem in text.String(key: \"Key1\", path: \"myHeader/myTitle\") {");
@@ -76,8 +78,28 @@ namespace JsonPathDemo
             }
             Console.WriteLine("</ul>" + Environment.NewLine);
 
-            Console.WriteLine("In addition to Text.String() and Text.List() there is Text.Dictionary() for (well) JSON objects and Text.Json() for raw data" + Environment.NewLine);
+            Console.WriteLine("String() defaults to the last segment of 'path' if there is no data: " + await Text.String(key: "NoKey", path: "myHeader/myTitle"));
+            Console.WriteLine("Alternatively there can be default 'data': " + await Text.String(key: "NoKey", path: "myHeader/myTitle", data: () => "Fallback Title"));
 
+            Console.WriteLine("Which can be fully internationalized using 'i18n': " + await Text.String(key: "NoKey", path: "myHeader/myTitle", i18n: new JsonPath.StringGeneratorI18n {
+                ["de-DE"] = () => "German Title",
+                ["en-US"] = () => "English Title"
+            }));
+
+            Console.WriteLine("In addition to Text.String() and Text.List() there is Text.Dictionary(): " + (await Text.Dictionary(key: "Key1"))["myHeader"]["myTitle"]);
+
+            Console.WriteLine("which also has an i18n fallback: " + (await Text.Dictionary(key: "NoKey", path: "myHeader", i18n: new JsonPath.DictionaryGeneratorI18n {
+                ["de-DE"] = () => new JsonPath.Node(new Dictionary<string, string> {
+                    ["myTitle"] = "German Title",
+                    ["myWhatever"] = "de",
+                }),
+                ["en-US"] = () => new JsonPath.Node(new Dictionary<string, string> {
+                    ["myTitle"] = "English Title",
+                    ["myWhatever"] = "en",
+                })
+            }))["myTitle"]);
+
+            Console.WriteLine("and Text.Json() for raw data, particularly partial JSON: " + (await Text.Json(key: "Key1", path: "myHeader/myList")));
 
             Console.WriteLine(""); Console.WriteLine("");
         }
