@@ -1,60 +1,60 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-// ReSharper disable RedundantDefaultMemberInitializer
-// ReSharper disable FieldCanBeMadeReadOnly.Global
+using Newtonsoft.Json;
 
-// ReSharper disable once CheckNamespace
 namespace JsonPath
 {
-    public class Serializer
+    public class SerializerOptions
     {
-        public class Options
+        public bool BlankBeforeMapColon = false;
+        public bool BlankAfterMapColon = false;
+        public bool BlankBeforeMapBracket = false;
+        public bool BlankAfterMapBracket = false;
+        public bool BlankBeforeListComma = false;
+        public bool BlankAfterListComma = false;
+        public bool BlankBeforeListBracket = false;
+        public bool BlankAfterListBracket = false;
+        public bool BlankBeforeMapComma = false;
+        public bool BlankAfterMapComma = false;
+        public bool WrapAfterMapPair = false;
+        public bool WrapAfterListElement = false;
+        public bool IndentList = false;
+        public bool IndentMap = false;
+        public string IndentString = "";
+        public string EncapsulateKeys = "\"";
+        public string EncapsulateStrings = "\"";
+        public bool UseJsonNETStringSerializer = false;
+
+        public SerializerOptions(bool bFormatted = false, bool bWrapped = false)
         {
-            public bool BlankBeforeMapColon = false;
-            public bool BlankAfterMapColon = false;
-            public bool BlankBeforeMapBracket = false;
-            public bool BlankAfterMapBracket = false;
-            public bool BlankBeforeListComma = false;
-            public bool BlankAfterListComma = false;
-            public bool BlankBeforeListBracket = false;
-            public bool BlankAfterListBracket = false;
-            public bool BlankBeforeMapComma = false;
-            public bool BlankAfterMapComma = false;
-            public bool WrapAfterMapPair = false;
-            public bool WrapAfterListElement = false;
-            public bool IndentList = false;
-            public bool IndentMap = false;
-            public string IndentString = "";
-            public string EncapsulateKeys = "\"";
-            public string EncapsulateStrings = "\"";
-
-            public Options(bool bFormatted = false, bool bWrapped = false)
-            {
-                if (bFormatted) {
-                    if (bWrapped) {
-                        IndentMap = true;
-                        WrapAfterMapPair = true;
-                        IndentList = true;
-                        WrapAfterListElement = true;
-                        IndentString = "  ";
-                    }
-
-                    BlankAfterMapColon = true;
-                    BlankAfterListComma = true;
-                    BlankAfterMapComma = true;
-
-                    BlankBeforeListBracket = true;
-                    BlankAfterListBracket = true;
-
-                    BlankBeforeMapBracket = true;
-                    BlankAfterMapBracket = true;
+            if (bFormatted) {
+                if (bWrapped) {
+                    IndentMap = true;
+                    WrapAfterMapPair = true;
+                    IndentList = true;
+                    WrapAfterListElement = true;
+                    IndentString = "  ";
                 }
-            }
 
+                BlankAfterMapColon = true;
+                BlankAfterListComma = true;
+                BlankAfterMapComma = true;
+
+                BlankBeforeListBracket = true;
+                BlankAfterListBracket = true;
+
+                BlankBeforeMapBracket = true;
+                BlankAfterMapBracket = true;
+            }
         }
 
-        private Options _options = new Options();
+    }
+
+    public class Serializer
+    {
+
+        private SerializerOptions _options = new SerializerOptions();
 
         private int IndentDepth { get; set; }
 
@@ -65,7 +65,7 @@ namespace JsonPath
             }
         }
 
-        public static string ToJson(Node node, Options options)
+        public static string ToJson(Node node, SerializerOptions options)
         {
             var js = new Serializer();
 
@@ -78,9 +78,9 @@ namespace JsonPath
 
         public static string ToJson(Node node, bool bFormatted = false, bool bWrapped = false)
         {
-            var ser = new Serializer();
-
-            ser._options = new Serializer.Options(bFormatted, bWrapped);
+            var ser = new Serializer {
+                _options = new SerializerOptions(bFormatted, bWrapped)
+            };
 
             return ser.Serialize(node);
         }
@@ -110,13 +110,23 @@ namespace JsonPath
             }
 
             if (node.IsString) {
-                sb.Append(_options.EncapsulateStrings);
-                sb.Append(EscapeString(new StringBuilder(node.String, node.String.Length * 2)).Replace(_options.EncapsulateStrings, "\\" + _options.EncapsulateStrings));
-                sb.Append(_options.EncapsulateStrings);
+                if (_options.UseJsonNETStringSerializer) {
+                    sb.Append(JsonConvert.ToString(node.String));
+                } else {
+                    sb.Append(_options.EncapsulateStrings);
+                    sb.Append(EscapeString(new StringBuilder(node.String, node.String.Length * 2)).Replace(_options.EncapsulateStrings, "\\" + _options.EncapsulateStrings));
+                    sb.Append(_options.EncapsulateStrings);
+                }
             }
 
             if (node.IsFloat) {
                 sb.Append(node.Float.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (node.IsDate) {
+                sb.Append(_options.EncapsulateStrings);
+                sb.Append(node.Date.ToString("o"));
+                sb.Append(_options.EncapsulateStrings);
             }
 
             if (node.IsBool) {

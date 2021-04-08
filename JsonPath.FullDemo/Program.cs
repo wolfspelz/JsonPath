@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace JsonPathDemo
 {
     class Program
     {
-        static void Main(string[] args)
+        static async System.Threading.Tasks.Task Main()
         {
             Console.WriteLine("JsonPath Demo");
             Console.WriteLine("-------------");
@@ -55,8 +56,30 @@ namespace JsonPathDemo
             int linq2 = (from x in json[2] where x.Key == "aNumber" select x.Value).First();
             Console.WriteLine("  (from x in json[2] where x.Key == \"aNumber\" select x.Value).First() = " + linq2);
 
+            Console.WriteLine(Environment.NewLine + Environment.NewLine + "Now, the TextProvider:" + Environment.NewLine);
 
-            Console.WriteLine(""); Console.Write("Press <enter>"); Console.ReadLine();
+            var Text = new JsonPath.TextProvider(new JsonPath.MemoryDataProvider(), "JsonPathDemo", "en-US", "IndexPage");
+            // For demo purposes using an in-memory data provider
+            await Text.Set("Key1", "{ 'myHeader': { 'myTitle': 'Page Title', 'myList': ['Text1', 'Text2'] } }");
+            Console.WriteLine("Use this in a Controller or the code page of the Razor view to create a PageModel property (rather than the 'var' as in this example). Then in the view do:" + Environment.NewLine);
+            Console.WriteLine("<h1>text.String(key: \"Key1\", path: \"myHeader/myTitle\")<h1>");
+            Console.WriteLine("<ul>");
+            Console.WriteLine("  @foreach (var listElem in text.String(key: \"Key1\", path: \"myHeader/myTitle\") {");
+            Console.WriteLine("    <li>@listElem</li>");
+            Console.WriteLine("  }");
+            Console.WriteLine("</ul>");
+            Console.WriteLine(Environment.NewLine + "which will of course show:" + Environment.NewLine);
+            Console.WriteLine("<h1>" + await Text.String(key: "Key1", path: "myHeader/myTitle") + "<h1>");
+            Console.WriteLine("<ul>");
+            foreach (var listElem in await Text.List(key: "Key1", path: "myHeader/myList")) {
+                Console.WriteLine("    <li>" + listElem + "</li>");
+            }
+            Console.WriteLine("</ul>" + Environment.NewLine);
+
+            Console.WriteLine("In addition to Text.String() and Text.List() there is Text.Dictionary() for (well) JSON objects and Text.Json() for raw data" + Environment.NewLine);
+
+
+            Console.WriteLine(""); Console.WriteLine("");
         }
     }
 }
