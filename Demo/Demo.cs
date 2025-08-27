@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace JsonPathDemo
+namespace JsonPath.Demo
 {
     class Program
     {
@@ -16,7 +16,7 @@ namespace JsonPathDemo
             const string data = "[ \"1st\", \"2nd\", { \"aString\": \"Hello World\", \"aNumber\": 42 } ]";
             Console.WriteLine("Given the JSON: " + data + Environment.NewLine);
 
-            var json = new JsonPath.Node(data);
+            var json = JsonPath.Node.FromJson(data);
 
             Console.WriteLine("The 42 is the value of the aNumber-key in the map which is the 3rd element of a list. JSON arrays/objects become C# lists/dictionaries." + Environment.NewLine);
 
@@ -54,7 +54,18 @@ namespace JsonPathDemo
             Console.WriteLine("  json[2].Where(x => x.Key == \"aNumber\").First().Value = " + linq);
             int linq2 = (from x in json[2] where x.Key == "aNumber" select x.Value).First();
             Console.WriteLine("  (from x in json[2] where x.Key == \"aNumber\" select x.Value).First() = " + linq2);
+            Console.WriteLine("");
 
+            Console.WriteLine("Now with XML:");
+
+            const string xmlData = "<root><item>1st</item><item>2nd</item><item><aString>Hello World</aString><aNumber>42</aNumber></item></root>";
+            Console.WriteLine("Given the XML: " + xmlData + Environment.NewLine);
+
+            var xml = JsonPath.Node.FromXml(xmlData);
+
+            var quickXml = xml[Xml.Children][2][Xml.Children].AsList.FirstOrDefault(x => x[Xml.Name] == "aNumber")?[Xml.Text].AsInt;
+            Console.WriteLine("  From the 3rd child, the item with name 'aNumber' and of that the text as int = " + quickXml);
+            Console.WriteLine("");
 
             Console.WriteLine(""); Console.Write("Press <enter>"); Console.ReadLine();
         }

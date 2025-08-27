@@ -1,108 +1,60 @@
-JsonPath
-========
+# JsonPath
 
-Nuget: https://www.nuget.org/packages/JsonPath
+A .NET library for extracting values from JSON and XML with simple expressions, similar to XPath for XML but type-safe.
 
-### Goal
+## Features
 
-Extract values from JSON:
-- with single line expressions and simple CLR objects 
-- without foreach/if/cast constructs. 
-- Like XPath for XML, but for JSON and type safe. 
-- A wrapper for Json.NET. 
+- **Simple JSON Navigation**: Extract values with intuitive syntax like `json[2]["aNumber"]`
+- **Type-Safe Operations**: Built-in type conversions with `.AsInt`, `.AsString`, `.AsDictionary`, etc.
+- **LINQ Integration**: Full support for LINQ queries on JSON data
+- **XML Support**: Parse and navigate XML documents with the same syntax
+- **No Exceptions**: Invalid paths return default values instead of throwing exceptions
+- **Enumerable Support**: Iterate over JSON arrays and objects with foreach loops
 
-### Example
+## Quick Start
 
-Extract the 42 from:
+```csharp
+using JsonPath;
 
-    [ "1st", "2nd", { "aString": "Hello World", "aNumber": 42 } ]
-    
-with C#:
+// Parse JSON
+var json = Node.FromJson("[ \"1st\", \"2nd\", { \"aString\": \"Hello World\", \"aNumber\": 42 } ]");
 
-    int fourtytwo = new Node(data)[2]["aNumber"];
-    
-### Installation
+// Extract values
+int number = json[2]["aNumber"];                    // 42
+string text = json[2]["aString"];                   // "Hello World"
+var explicitInt = json[2]["aNumber"].AsInt;         // 42
 
-From the Package Manager Console: 
+// Safe navigation - no exceptions for invalid paths
+int invalid = json[1000]["noNumber"];               // 0 (default value)
 
-    PM> Install-Package JsonPath
+// Iterate over collections
+foreach (var pair in json[2]) {
+    Console.WriteLine($"{pair.Key} = {pair.Value}");
+}
 
-### Requirements:
+// LINQ support
+int result = json[2].Where(x => x.Key == "aNumber").Select(x => x.Value).First();
+```
 
-* .NET >= 3.5
-* [Json.NET](https://www.nuget.org/packages/Newtonsoft.Json) (aka Newtonsoft.Json)
+## XML Support
 
-### Syntax Examples
+```csharp
+var xml = Node.FromXml("<root><item>1st</item><item>2nd</item><item><aNumber>42</aNumber></item></root>");
+var number = xml[Xml.Children][2][Xml.Children]
+    .AsList.FirstOrDefault(x => x[Xml.Name] == "aNumber")?[Xml.Text].AsInt;
+```
 
-Extract the 42 from:
+## Installation
 
-    [ "1st", "2nd", { "aString": "Hello World", "aNumber": 42 } ]
+```
+dotnet add package JsonPath
+```
 
-You can do:
+## Requirements
 
-    var json = new Node(data);
-    int fourtytwo = json[2]["aNumber"];
+- .NET 8.0 or later
+- Newtonsoft.Json
 
-If you want to be more explicit:
+## License
 
-    var fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsInt; // will return (int) 42
-    var fourtytwo = (int)json.AsList[2].AsDictionary["aNumber"]; // will return (int) 42
-    var fourtytwo = json.AsList[2].AsDictionary["aNumber"].AsString; // will return (string) "42"
-
-Invalid keys do not throw exceptions. They return 0, empty string, or empty list:
-
-    int zero = json[1000]["noNumber"];
-
-Of course, you can foreach a dictionary (aka JS object):
-
-    foreach (var pair in json[2]) {}
-
-And iterate over a list (aka JS array):
-
-    for (int i = 0; i < json.Count; i++) {
-        string value = json[i];
-    }
-
-You can even LINQ it:
-
-    json[2].Where(pair => pair.Key == "aNumber").First().Value
-    (from x in json[2] where x.Key == "aNumber" select x.Value).First()
-
-### More Examples
-
-Dive deep into this JSON with a single line of code:
-
-    var data = "[ { 
-            aInt: 41, 
-            bLong: 42000000000, 
-            cBool: true, 
-            dString: '43', 
-            eFloat: 3.14159265358979323 
-        }, { 
-            fInt: 44, 
-            gLong: 45000000000, 
-            hString: "46"
-        }, { 
-            iList: [ 
-                { jInt: 47, kString: '48' }, 
-                { lInt: 49, mString: '50' }
-            ], 
-        }
-    ]";
-
-Using index notation:
-
-     41  = (long) new JsonTree.Node(data)[0]["aInt"]
-    "50" = (string) new JsonTree.Node(data)[2]["iList"][1]["mString"]
-
-The same with explicit notation:
-
-     41  = (long) new JsonTree.Node(data).AsList[0].AsDictionary["aInt"].AsInt
-    "50" = (string) new JsonTree.Node(data).AsList[2].AsDictionary["iList"].List[1].Dictionary["mString"].AsString
-
-The same with standard enumerators on CLR objects:
-
-     41  = (long) new JsonTree.Node(data).AsList.ElementAt(0).AsDictionary.ElementAt(0).Value
-    "50" = (string) new JsonTree.Node(data).AsList.ElementAt(2).AsDictionary.ElementAt(0).Value.AsList.ElementAt(1).AsDictionary.ElementAt(1).Value
-
-(testing VSGit 2)
+MIT License

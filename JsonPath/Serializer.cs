@@ -1,88 +1,87 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
-// ReSharper disable RedundantDefaultMemberInitializer
-// ReSharper disable FieldCanBeMadeReadOnly.Global
 
-// ReSharper disable once CheckNamespace
+using Newtonsoft.Json;
+
 namespace JsonPath
 {
-    public class Serializer
+    public class SerializerOptions
     {
-        public class Options
+        public string BeforeMapColon = "";
+        public string AfterMapColon = "";
+        public string BeforeMapBracket = "";
+        public string AfterMapBracket = "";
+        public string BeforeListComma = "";
+        public string AfterListComma = "";
+        public string BeforeListBracket = "";
+        public string AfterListBracket = "";
+        public string BeforeMapComma = "";
+        public string AfterMapComma = "";
+        public bool WrapAfterMapPair = false;
+        public bool WrapAfterListElement = false;
+        public bool IndentList = false;
+        public bool IndentMap = false;
+        public string Indent = "";
+        public string EncapsulateKeys = "\"";
+        public string EncapsulateBadKeys = "\"";
+        public string EncapsulateStrings = "\"";
+        public bool UseJsonNETStringSerializer = false;
+
+        public SerializerOptions(bool spaced = false, bool indented = false, bool doubleQuotes = true)
         {
-            public bool BlankBeforeMapColon = false;
-            public bool BlankAfterMapColon = false;
-            public bool BlankBeforeMapBracket = false;
-            public bool BlankAfterMapBracket = false;
-            public bool BlankBeforeListComma = false;
-            public bool BlankAfterListComma = false;
-            public bool BlankBeforeListBracket = false;
-            public bool BlankAfterListBracket = false;
-            public bool BlankBeforeMapComma = false;
-            public bool BlankAfterMapComma = false;
-            public bool WrapAfterMapPair = false;
-            public bool WrapAfterListElement = false;
-            public bool IndentList = false;
-            public bool IndentMap = false;
-            public string IndentString = "";
-            public string EncapsulateKeys = "\"";
-            public string EncapsulateStrings = "\"";
-
-            public Options(bool bFormatted = false, bool bWrapped = false)
-            {
-                if (bFormatted) {
-                    if (bWrapped) {
-                        IndentMap = true;
-                        WrapAfterMapPair = true;
-                        IndentList = true;
-                        WrapAfterListElement = true;
-                        IndentString = "  ";
-                    }
-
-                    BlankAfterMapColon = true;
-                    BlankAfterListComma = true;
-                    BlankAfterMapComma = true;
-
-                    BlankBeforeListBracket = true;
-                    BlankAfterListBracket = true;
-
-                    BlankBeforeMapBracket = true;
-                    BlankAfterMapBracket = true;
+            if (spaced) {
+                if (indented) {
+                    Indent = "  ";
+                    IndentMap = true;
+                    WrapAfterMapPair = true;
+                    IndentList = true;
+                    WrapAfterListElement = true;
                 }
+
+                AfterMapColon = " ";
+                AfterListComma = " ";
+                AfterMapComma = " ";
+                BeforeListBracket = " ";
+                AfterListBracket = " ";
+                BeforeMapBracket = " ";
+                AfterMapBracket = " ";
             }
 
+            if (doubleQuotes) {
+                EncapsulateKeys = "\"";
+                EncapsulateBadKeys = "\"";
+                EncapsulateStrings = "\"";
+            } else {
+                EncapsulateKeys = "'";
+                EncapsulateBadKeys = "'";
+                EncapsulateStrings = "'";
+            }
         }
 
-        private Options _options = new Options();
+    }
+
+    public class Serializer
+    {
+        private SerializerOptions _options = new SerializerOptions();
 
         private int IndentDepth { get; set; }
 
         private void Indent(StringBuilder sb)
         {
             for (int i = 0; i < IndentDepth; i++) {
-                sb.Append(_options.IndentString);
+                sb.Append(_options.Indent);
             }
         }
 
-        public static string ToJson(Node node, Options options)
+        public static string ToJson(Node node, SerializerOptions options)
         {
-            var js = new Serializer();
-
-            if (options != null) {
-                js._options = options;
-            }
-
-            return js.Serialize(node);
+            var js = new Serializer { _options = options };
+            return js.Serialize(node, false);
         }
 
-        public static string ToJson(Node node, bool bFormatted = false, bool bWrapped = false)
+        public static string ToJson(Node node, bool spaced = false, bool indented = false)
         {
-            var ser = new Serializer();
-
-            ser._options = new Serializer.Options(bFormatted, bWrapped);
-
-            return ser.Serialize(node);
+            return ToJson(node, new SerializerOptions(spaced, indented));
         }
 
         static readonly Dictionary<string, string> EscapeStringTable = new Dictionary<string, string>()
@@ -101,22 +100,50 @@ namespace JsonPath
             return data.ToString();
         }
 
-        private string Serialize(Node node)
+        const string goodKeyChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+        const string goodKeyLeadChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+
+        public static bool IsGoodKey(string key)
+        {
+            if (string.IsNullOrEmpty(key)) return false;
+            if (!goodKeyLeadChars.Contains(key[0])) return false;
+            var len = key.Length;
+            for (var i = 1; i < len; i++) {
+                if (!goodKeyChars.Contains(key[i])) return false;
+            }
+            return true;
+        }
+
+        private string Serialize(Node node, bool isElement)
         {
             var sb = new StringBuilder();
+
+            if (node.IsNull && isElement) {
+                sb.Append("null");
+            }
 
             if (node.IsInt) {
                 sb.Append(node.Int);
             }
 
             if (node.IsString) {
-                sb.Append(_options.EncapsulateStrings);
-                sb.Append(EscapeString(new StringBuilder(node.String, node.String.Length * 2)).Replace(_options.EncapsulateStrings, "\\" + _options.EncapsulateStrings));
-                sb.Append(_options.EncapsulateStrings);
+                if (_options.UseJsonNETStringSerializer) {
+                    sb.Append(JsonConvert.ToString(node.String));
+                } else {
+                    sb.Append(_options.EncapsulateStrings);
+                    sb.Append(EscapeString(new StringBuilder(node.String, node.String.Length * 2)).Replace(_options.EncapsulateStrings, "\\" + _options.EncapsulateStrings));
+                    sb.Append(_options.EncapsulateStrings);
+                }
             }
 
             if (node.IsFloat) {
                 sb.Append(node.Float.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (node.IsDate) {
+                sb.Append(_options.EncapsulateStrings);
+                sb.Append(node.Date.ToString("o"));
+                sb.Append(_options.EncapsulateStrings);
             }
 
             if (node.IsBool) {
@@ -126,21 +153,21 @@ namespace JsonPath
             if (node.IsList) {
                 sb.Append("[");
                 if (node.List.Count > 0) {
-                    if (_options.BlankAfterListBracket) { sb.Append(" "); }
+                    sb.Append(_options.AfterListBracket);
                     if (_options.IndentList) { sb.Append("\n"); IndentDepth++; }
                     bool bFirst = true;
                     foreach (var prop in node.List) {
                         if (!bFirst) {
-                            if (_options.BlankBeforeListComma) { sb.Append(" "); }
+                            sb.Append(_options.BeforeListComma);
                             sb.Append(",");
-                            if (_options.BlankAfterListComma) { sb.Append(" "); }
+                            sb.Append(_options.AfterListComma);
                             if (_options.WrapAfterListElement) { sb.Append("\n"); }
                         }
                         bFirst = false;
                         if (_options.IndentList) { Indent(sb); }
-                        sb.Append(Serialize(prop));
+                        sb.Append(Serialize(prop, true));
                     }
-                    if (_options.BlankBeforeListBracket) { sb.Append(" "); }
+                    sb.Append(_options.BeforeListBracket);
                     if (_options.IndentList) { sb.Append("\n"); IndentDepth--; }
                     if (_options.IndentList) { Indent(sb); }
                 }
@@ -150,27 +177,36 @@ namespace JsonPath
             if (node.IsDictionary) {
                 sb.Append("{");
                 if (node.Dictionary.Count > 0) {
-                    if (_options.BlankAfterMapBracket) { sb.Append(" "); }
+                    sb.Append(_options.AfterMapBracket);
                     if (_options.IndentMap) { sb.Append("\n"); IndentDepth++; }
                     bool bFirst = true;
                     foreach (var prop in node.Dictionary) {
                         if (!bFirst) {
-                            if (_options.BlankBeforeMapComma) { sb.Append(" "); }
+                            sb.Append(_options.BeforeMapComma);
                             sb.Append(",");
-                            if (_options.BlankAfterMapComma) { sb.Append(" "); }
+                            sb.Append(_options.AfterMapComma);
                             if (_options.WrapAfterMapPair) { sb.Append("\n"); }
                         }
                         bFirst = false;
                         if (_options.IndentMap) { Indent(sb); }
-                        sb.Append(_options.EncapsulateKeys);
+                        var needEncapsulateKey = !IsGoodKey(prop.Key);
+                        if (needEncapsulateKey) {
+                            sb.Append(_options.EncapsulateBadKeys);
+                        } else {
+                            sb.Append(_options.EncapsulateKeys);
+                        }
                         sb.Append(prop.Key);
-                        sb.Append(_options.EncapsulateKeys);
-                        if (_options.BlankBeforeMapColon) { sb.Append(" "); }
+                        if (needEncapsulateKey) {
+                            sb.Append(_options.EncapsulateBadKeys);
+                        } else {
+                            sb.Append(_options.EncapsulateKeys);
+                        }
+                        sb.Append(_options.BeforeMapColon);
                         sb.Append(":");
-                        if (_options.BlankAfterMapColon) { sb.Append(" "); }
-                        sb.Append(Serialize(prop.Value));
+                        sb.Append(_options.AfterMapColon);
+                        sb.Append(Serialize(prop.Value, true));
                     }
-                    if (_options.BlankBeforeMapBracket) { sb.Append(" "); }
+                    sb.Append(_options.BeforeMapBracket);
                     if (_options.IndentMap) { sb.Append("\n"); IndentDepth--; }
                     if (_options.IndentMap) { Indent(sb); }
                 }
