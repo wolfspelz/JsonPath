@@ -1,9 +1,0 @@
-REM build Release
-
-cd C:\Heiner\github-JsonPath\JsonPath
-
-..\.nuget\nuget pack JsonPath.csproj -Prop Configuration=Release
-
-..\.nuget\nuget push JsonPath.1.0.6.nupkg
-
-REM

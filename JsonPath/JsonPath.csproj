@@ -1,18 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net35;</TargetFrameworks>
-    <Copyright>Copyright ©  2016</Copyright>
-    <Company />
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <!-- NuGet Package Properties -->
     <PackageId>JsonPath</PackageId>
-    <Authors>Heiner Wolf</Authors>
-    <PackageTags>JSON,Parser,JsonPath,XPath,POCO,Linq,Json.NET</PackageTags>
+    <Version>2.0.0</Version>
+    <Authors>wolfspelz</Authors>
+    <Company>wolfspelz</Company>
+    <Product>JsonPath</Product>
+    <Description>A .NET library for extracting values from JSON with simple expressions, similar to XPath for XML but type-safe. Supports JSON and XML parsing with intuitive syntax like json[2]["aNumber"] and LINQ integration.</Description>
+    <PackageTags>json;xml;path;query;parser;xpath;linq;JSON Parser;JsonPath;XPath;POCO</PackageTags>
     <PackageProjectUrl>https://github.com/wolfspelz/JsonPath</PackageProjectUrl>
-    <Description>JsonPath Class Library: Extract values from JSON data with single line expressions and plain old CLR objects without using foreach/if. Extract the 42 from ["1st","2nd",{"aString":"HelloWorld","aNumber":42}] with C# expression: json[2]["aNumber"]</Description>
+    <RepositoryUrl>https://github.com/wolfspelz/JsonPath</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
