@@ -4,7 +4,7 @@
 		{
 			"label": "Run Demo",
 			"type": "shell",
-			"command": "cd /home/hwolf/dev/JsonPath/Demo && dotnet run",
+			"command": "cd Demo && dotnet run",
 			"group": "build",
 			"isBackground": false,
 			"problemMatcher": []
@@ -12,7 +12,39 @@
 		{
 			"label": "Run Tests",
 			"type": "shell",
-			"command": "cd /home/hwolf/dev/JsonPath/Test && dotnet test",
+			"command": "cd Test && dotnet test",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Build NuGet Package",
+			"type": "shell",
+			"command": "cd JsonPath && dotnet pack -c Release",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Build and Push NuGet Package (needs $NUGET_API_KEY)",
+			"type": "shell",
+			"command": "cd JsonPath && dotnet pack -c Release && dotnet nuget push bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key $NUGET_API_KEY",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run PackageTester",
+			"type": "shell",
+			"command": "cd PackageTester && dotnet run",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Delete NuGet Package v1.0.0",
+			"type": "shell",
+			"command": "dotnet nuget delete JsonPath 1.0.0 --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY",
 			"group": "build",
 			"isBackground": false,
 			"problemMatcher": []
