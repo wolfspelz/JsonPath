@@ -57,6 +57,7 @@ namespace JsonPath.Demo
             Console.WriteLine("");
 
             Console.WriteLine("Now with XML:");
+            Console.WriteLine("");
 
             const string xmlData = "<root><item>1st</item><item>2nd</item><item><aString>Hello World</aString><aNumber>42</aNumber></item></root>";
             Console.WriteLine("Given the XML: " + xmlData + Environment.NewLine);
@@ -64,7 +65,7 @@ namespace JsonPath.Demo
             var xml = JsonPath.Node.FromXml(xmlData);
 
             var quickXml = xml[Xml.Children][2][Xml.Children].AsList.FirstOrDefault(x => x[Xml.Name] == "aNumber")?[Xml.Text].AsInt;
-            Console.WriteLine("  From the 3rd child, the item with name 'aNumber' and of that the text as int = " + quickXml);
+            Console.WriteLine("  From the 3rd child, the item with name 'aNumber' and of that the inner text as int = " + quickXml);
             Console.WriteLine("");
 
             Console.WriteLine(""); Console.Write("Press <enter>"); Console.ReadLine();
