@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Demo",
+			"type": "shell",
+			"command": "cd /home/hwolf/dev/JsonPath/Demo && dotnet run",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Tests",
+			"type": "shell",
+			"command": "cd /home/hwolf/dev/JsonPath/Test && dotnet test",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}
