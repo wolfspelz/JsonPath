@@ -13,7 +13,16 @@ namespace JsonPath.Demo
             Console.WriteLine("Goal: extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath for XML, but for JSON and type safe.");
             Console.WriteLine("");
 
-            const string data = "[ \"1st\", \"2nd\", { \"aString\": \"Hello World\", \"aNumber\": 42 } ]";
+            string data = Node.FromJson("""
+                [
+                    "1st",
+                    "2nd",
+                    {
+                        "aString": "Hello World",
+                        "aNumber": 42
+                    }
+                ]
+                """);
             Console.WriteLine("Given the JSON: " + data + Environment.NewLine);
 
             var json = JsonPath.Node.FromJson(data);
@@ -59,7 +68,15 @@ namespace JsonPath.Demo
             Console.WriteLine("Now with XML:");
             Console.WriteLine("");
 
-            const string xmlData = "<root><item>1st</item><item>2nd</item><item><aString>Hello World</aString><aNumber>42</aNumber></item></root>";
+            const string xmlData = """
+            <root>
+                <item>1st</item>
+                <item>2nd</item>
+                <item>
+                    <aNumber>42</aNumber>
+                </item>
+            </root>
+            """;
             Console.WriteLine("Given the XML: " + xmlData + Environment.NewLine);
 
             var xml = JsonPath.Node.FromXml(xmlData);

@@ -17,7 +17,16 @@ A .NET library for extracting values from JSON and XML with simple expressions, 
 using JsonPath;
 
 // Parse JSON
-var json = Node.FromJson("[ \"1st\", \"2nd\", { \"aString\": \"Hello World\", \"aNumber\": 42 } ]");
+var json = Node.FromJson("""
+            [
+                "1st",
+                "2nd",
+                {
+                    "aString": "Hello World",
+                    "aNumber": 42
+                }
+            ]
+            """);
 
 // Extract values
 int number = json[2]["aNumber"];                    // 42
@@ -39,7 +48,15 @@ int result = json[2].Where(x => x.Key == "aNumber").Select(x => x.Value).First()
 ## XML Support
 
 ```csharp
-var xml = Node.FromXml("<root><item>1st</item><item>2nd</item><item><aNumber>42</aNumber></item></root>");
+var xml = Node.FromXml("""
+            <root>
+                <item>1st</item>
+                <item>2nd</item>
+                <item>
+                    <aNumber>42</aNumber>
+                </item>
+            </root>
+            """);
 var number = xml[Xml.Children][2][Xml.Children]
     .AsList.FirstOrDefault(x => x[Xml.Name] == "aNumber")?[Xml.Text].AsInt;
 ```
