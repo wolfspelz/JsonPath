@@ -13,7 +13,7 @@ namespace JsonPath.Demo
             Console.WriteLine("Goal: extract values from JSON with single line expressions and simple CLR objects without using foreach/if contructs. Just like XPath for XML, but for JSON and type safe.");
             Console.WriteLine("");
 
-            string data = Node.FromJson("""
+            string data = """
                 [
                     "1st",
                     "2nd",
@@ -22,8 +22,8 @@ namespace JsonPath.Demo
                         "aNumber": 42
                     }
                 ]
-                """);
-            Console.WriteLine("Given the JSON: " + data + Environment.NewLine);
+                """;
+            Console.WriteLine("Given the JSON: " + Environment.NewLine + data + Environment.NewLine);
 
             var json = JsonPath.Node.FromJson(data);
 
@@ -61,6 +61,7 @@ namespace JsonPath.Demo
             Console.WriteLine("You can even LINQ it:");
             int linq = json[2].Where(x => x.Key == "aNumber").Select(x => x.Value).First();
             Console.WriteLine("  json[2].Where(x => x.Key == \"aNumber\").First().Value = " + linq);
+            Console.WriteLine("or:");
             int linq2 = (from x in json[2] where x.Key == "aNumber" select x.Value).First();
             Console.WriteLine("  (from x in json[2] where x.Key == \"aNumber\" select x.Value).First() = " + linq2);
             Console.WriteLine("");
@@ -73,11 +74,12 @@ namespace JsonPath.Demo
                 <item>1st</item>
                 <item>2nd</item>
                 <item>
+                    <aString>Hello World</aString>
                     <aNumber>42</aNumber>
                 </item>
             </root>
             """;
-            Console.WriteLine("Given the XML: " + xmlData + Environment.NewLine);
+            Console.WriteLine("Given the XML: " + Environment.NewLine + xmlData + Environment.NewLine);
 
             var xml = JsonPath.Node.FromXml(xmlData);
 
