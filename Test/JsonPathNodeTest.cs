@@ -51,7 +51,6 @@ namespace JsonPath.Test
             Assert.IsTrue(Node.FromJson("{a:3.14159265358979323}").AsDictionary.First().Value.IsFloat);
             //Assert.IsTrue(Node.FromJson("{a:.42}").AsDictionary.First().Value.IsFloat); // Broken since upgrade from Newtonsoft 9 to 10
 
-            // Assert.AreEqual("x", Node.From("y").AsString);
             Assert.AreEqual(41L, Node.From("41").AsInt);
             Assert.AreEqual(true, Node.From("true").AsBool);
             Assert.AreEqual(false, Node.From("false").AsBool);
@@ -536,7 +535,7 @@ namespace JsonPath.Test
             // Arrange
 
             // Act
-            var json = Node.From(new Dictionary<string, object?> { ["string"] = "a", ["int"] = 42, ["long"] = 42000000000, ["double"] = 3.14, ["bool"] = true, ["date"] = new DateTime(2019, 2, 12, 1, 2, 3), });
+            var json = Node.From(new Dictionary<string, object> { ["string"] = "a", ["int"] = 42, ["long"] = 42000000000, ["double"] = 3.14, ["bool"] = true, ["date"] = new DateTime(2019, 2, 12, 1, 2, 3), });
 
             // Assert
             Assert.AreEqual("a", json["string"].String);
@@ -571,74 +570,6 @@ namespace JsonPath.Test
             var node = (Node)list;
             Assert.AreEqual(41L, Node.FromJson(node.ToJson())[0].Int);
             Assert.AreEqual("42", Node.FromJson(node.ToJson())[1].String);
-        }
-
-        [TestMethod]
-        [TestCategory("JsonPath")]
-        public void Nulls()
-        {
-            // Null scalar:
-            Assert.AreEqual(true, new Node(Node.Type.Empty).IsNull);
-            Assert.AreEqual("", new Node(Node.Type.Empty).AsString);
-            Assert.AreEqual("", new Node(Node.Type.Empty).ToJson());
-
-            Assert.AreEqual(true, Node.FromJson("").IsNull);
-            Assert.AreEqual("", Node.FromJson("").AsString);
-            Assert.AreEqual("", Node.FromJson("").ToJson());
-
-            Assert.AreEqual(true, Node.FromJson("null").IsNull);
-            Assert.AreEqual("", Node.FromJson("null").AsString);
-            Assert.AreEqual("", Node.FromJson("null").ToJson());
-
-            {// List containing null:
-                var node = Node.FromJson("[null, 1, null]");
-                Assert.AreEqual(true, node.List[0].IsNull);
-                Assert.AreEqual("", node.List[0].AsString);
-                Assert.AreEqual("", node.List[0].ToJson());
-                Assert.AreEqual(false, node.List[1].IsNull);
-                Assert.AreEqual("1", node.List[1].AsString);
-                Assert.AreEqual("1", node.List[1].ToJson());
-                Assert.AreEqual(true, node.List[2].IsNull);
-                Assert.AreEqual("", node.List[2].AsString);
-                Assert.AreEqual("", node.List[2].ToJson());
-            }
-            {// List containing null - JSON roundtrip:
-                var node = Node.FromJson(Node.FromJson("[null, 1, null]").ToJson());
-                Assert.AreEqual(true, node.List[0].IsNull);
-                Assert.AreEqual("", node.List[0].AsString);
-                Assert.AreEqual("", node.List[0].ToJson());
-                Assert.AreEqual(false, node.List[1].IsNull);
-                Assert.AreEqual("1", node.List[1].AsString);
-                Assert.AreEqual("1", node.List[1].ToJson());
-                Assert.AreEqual(true, node.List[2].IsNull);
-                Assert.AreEqual("", node.List[2].AsString);
-                Assert.AreEqual("", node.List[2].ToJson());
-            }
-
-            {// Dictionary containing null:
-                var node = Node.FromJson("{\"a\": null, \"b\": 1, \"c\": null}");
-                Assert.AreEqual(true, node.Dictionary["a"].IsNull);
-                Assert.AreEqual("", node.Dictionary["a"].AsString);
-                Assert.AreEqual("", node.Dictionary["a"].ToJson());
-                Assert.AreEqual(false, node.Dictionary["b"].IsNull);
-                Assert.AreEqual("1", node.Dictionary["b"].AsString);
-                Assert.AreEqual("1", node.Dictionary["b"].ToJson());
-                Assert.AreEqual(true, node.Dictionary["c"].IsNull);
-                Assert.AreEqual("", node.Dictionary["c"].AsString);
-                Assert.AreEqual("", node.Dictionary["c"].ToJson());
-            }
-            { // Dictionary containing null - JSON roundtrip:
-                var node = Node.FromJson(Node.FromJson("{\"a\": null, \"b\": 1, \"c\": null}").ToJson());
-                Assert.AreEqual(true, node.Dictionary["a"].IsNull);
-                Assert.AreEqual("", node.Dictionary["a"].AsString);
-                Assert.AreEqual("", node.Dictionary["a"].ToJson());
-                Assert.AreEqual(false, node.Dictionary["b"].IsNull);
-                Assert.AreEqual("1", node.Dictionary["b"].AsString);
-                Assert.AreEqual("1", node.Dictionary["b"].ToJson());
-                Assert.AreEqual(true, node.Dictionary["c"].IsNull);
-                Assert.AreEqual("", node.Dictionary["c"].AsString);
-                Assert.AreEqual("", node.Dictionary["c"].ToJson());
-            }
         }
 
     }

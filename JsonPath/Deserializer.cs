@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace JsonPath
 {
     public class DeserializerOptions
     {
+        public bool LowerCaseDictKeys = false;
     }
 
     public static class Deserializer
@@ -12,17 +14,15 @@ namespace JsonPath
 
         public static Node FromJson(string json, DeserializerOptions? options = null)
         {
-            Dont = () => { var x = options; };
-
             if (string.IsNullOrEmpty(json)) {
                 return new Node(Node.Type.Empty);
             }
 
             var jsonObject = JToken.Parse(json);
-            return NodeFromJsonObject(jsonObject);
+            return NodeFromJsonObject(jsonObject, options ?? new DeserializerOptions());
         }
 
-        private static Node NodeFromJsonObject(object obj)
+        private static Node NodeFromJsonObject(object obj, DeserializerOptions options)
         {
             if (obj == null) {
                 return new Node(Node.Type.Empty);
@@ -64,7 +64,7 @@ namespace JsonPath
             if (obj is JArray list) {
                 var node = new Node(Node.Type.List);
                 foreach (var item in list) {
-                    node.List.Add(NodeFromJsonObject(item));
+                    node.List.Add(NodeFromJsonObject(item, options));
                 }
                 return node;
             }
@@ -72,7 +72,8 @@ namespace JsonPath
             if (obj is JObject dict) {
                 var node = new Node(Node.Type.Dictionary);
                 foreach (var pair in dict) {
-                    node.Dictionary.Add(pair.Key, NodeFromJsonObject(pair.Value ?? JToken.Parse("''")));
+                    var key = options.LowerCaseDictKeys ? pair.Key.ToLower() : pair.Key;
+                    node.Dictionary.Add(key, NodeFromJsonObject(pair.Value ?? JToken.Parse("''"), options));
                 }
                 return node;
             }

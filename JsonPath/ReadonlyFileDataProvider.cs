@@ -1,10 +1,12 @@
-﻿namespace JsonPath
+﻿#nullable disable
+
+namespace JsonPath
 {
     public class ReadonlyFileDataProvider : IDataProvider
     {
         private readonly string _basePath;
 
-        public ReadonlyFileDataProvider(string? basePath = null)
+        public ReadonlyFileDataProvider(string basePath = null)
         {
             _basePath = basePath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/i18n");
         }
@@ -24,7 +26,7 @@
             throw new Exception("Writing data to file system not supported");
         }
 
-        public string? GetData(string id)
+        public string GetData(string id)
         {
             var path = FilePath(id);
             if (!File.Exists(path)) {

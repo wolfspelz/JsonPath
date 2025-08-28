@@ -1,4 +1,6 @@
-﻿namespace JsonPath
+﻿using System.Collections.Generic;
+
+namespace JsonPath
 {
     public static class Extensions
     {
@@ -21,7 +23,7 @@
             return JsonPath.Node.From(self);
         }
 
-        public static JsonPath.Node ToJsonNode(this Dictionary<string, object?> self)
+        public static JsonPath.Node ToJsonNode(this Dictionary<string, object> self)
         {
             return JsonPath.Node.From(self);
         }

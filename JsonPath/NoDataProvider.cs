@@ -1,4 +1,6 @@
-﻿namespace JsonPath
+﻿#nullable disable
+
+namespace JsonPath
 {
     public class NoDataProvider : IDataProvider
     {
@@ -13,7 +15,7 @@
         {
         }
 
-        public string? GetData(string id)
+        public string GetData(string id)
         {
             return null;
         }

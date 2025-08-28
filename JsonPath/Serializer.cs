@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 using Newtonsoft.Json;
@@ -75,13 +76,22 @@ namespace JsonPath
 
         public static string ToJson(Node node, SerializerOptions options)
         {
-            var js = new Serializer { _options = options };
-            return js.Serialize(node, false);
+            var js = new Serializer();
+
+            if (options != null) {
+                js._options = options;
+            }
+
+            return js.Serialize(node);
         }
 
         public static string ToJson(Node node, bool spaced = false, bool indented = false)
         {
-            return ToJson(node, new SerializerOptions(spaced, indented));
+            var ser = new Serializer {
+                _options = new SerializerOptions(spaced, indented)
+            };
+
+            return ser.Serialize(node);
         }
 
         static readonly Dictionary<string, string> EscapeStringTable = new Dictionary<string, string>()
@@ -114,13 +124,9 @@ namespace JsonPath
             return true;
         }
 
-        private string Serialize(Node node, bool isElement)
+        private string Serialize(Node node)
         {
             var sb = new StringBuilder();
-
-            if (node.IsNull && isElement) {
-                sb.Append("null");
-            }
 
             if (node.IsInt) {
                 sb.Append(node.Int);
@@ -165,7 +171,7 @@ namespace JsonPath
                         }
                         bFirst = false;
                         if (_options.IndentList) { Indent(sb); }
-                        sb.Append(Serialize(prop, true));
+                        sb.Append(Serialize(prop));
                     }
                     sb.Append(_options.BeforeListBracket);
                     if (_options.IndentList) { sb.Append("\n"); IndentDepth--; }
@@ -204,7 +210,7 @@ namespace JsonPath
                         sb.Append(_options.BeforeMapColon);
                         sb.Append(":");
                         sb.Append(_options.AfterMapColon);
-                        sb.Append(Serialize(prop.Value, true));
+                        sb.Append(Serialize(prop.Value));
                     }
                     sb.Append(_options.BeforeMapBracket);
                     if (_options.IndentMap) { sb.Append("\n"); IndentDepth--; }

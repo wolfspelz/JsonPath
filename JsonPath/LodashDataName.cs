@@ -4,7 +4,7 @@ namespace JsonPath
 {
     public class LodashDataName : IDataName
     {
-        public string GetName(string app, string? lang, string context, string? key)
+        public string GetName(string app, string lang, string context, string key)
         {
             var sb = new StringBuilder();
             if (!string.IsNullOrEmpty(app)) { sb.Append(app); }

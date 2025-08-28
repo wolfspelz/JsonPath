@@ -31,30 +31,30 @@ namespace JsonPath.Demo
 
             Console.WriteLine("Get to the value quickly:");
             int quick = json[2]["aNumber"];
-            Console.WriteLine("  root[2][\"aNumber\"] = " + quick);
+            Console.WriteLine("  json[2][\"aNumber\"] = " + quick);
             Console.WriteLine("");
 
             Console.WriteLine("A bit more explicit:");
             var expl = json.AsList[2].AsDictionary["aNumber"].AsInt;
-            Console.WriteLine("  root.AsList[2].AsDictionary[\"aNumber\"].AsInt = " + expl);
+            Console.WriteLine("  json.AsList[2].AsDictionary[\"aNumber\"].AsInt = " + expl);
             Console.WriteLine("");
 
             Console.WriteLine("Invalid key: no exception, just a default 0, an empty string or an empty list:");
             int inval = json[1000]["noNumber"];
-            Console.WriteLine("  root[1000][\"noNumber\"] = " + inval);
+            Console.WriteLine("  json[1000][\"noNumber\"] = " + inval);
             Console.WriteLine("");
 
             Console.WriteLine("Of course, you can foreach a dictionary (aka JS object):");
             Console.WriteLine("  foreach (var pair in json[2]) {}");
             foreach (var pair in json[2]) {
-                Console.WriteLine("      root[2][\"" + pair.Key + "\"] = " + pair.Value);
+                Console.WriteLine("      json[2][\"" + pair.Key + "\"] = " + pair.Value);
             }
             Console.WriteLine("");
 
             Console.WriteLine("And iterate over a list (aka JS array):");
             Console.WriteLine("  for (int i = 0; i < json.Count; i++) {}");
             for (int i = 0; i < json.Count; i++) {
-                Console.WriteLine("      root[" + i + "] = " + json[i]);
+                Console.WriteLine("      json[" + i + "] = " + json[i]);
             }
             Console.WriteLine("");
 
@@ -65,6 +65,8 @@ namespace JsonPath.Demo
             int linq2 = (from x in json[2] where x.Key == "aNumber" select x.Value).First();
             Console.WriteLine("  (from x in json[2] where x.Key == \"aNumber\" select x.Value).First() = " + linq2);
             Console.WriteLine("");
+
+
 
             Console.WriteLine("Now with XML:");
             Console.WriteLine("");
@@ -87,7 +89,26 @@ namespace JsonPath.Demo
             Console.WriteLine("  From the 3rd child, the item with name 'aNumber' and of that the inner text as int = " + quickXml);
             Console.WriteLine("");
 
-            Console.WriteLine(""); Console.Write("Press <enter>"); Console.ReadLine();
+
+
+            Console.WriteLine("Now with YAML:");
+            Console.WriteLine("");
+
+            const string yamlData = """
+            doc:
+                - item: 1st
+                - item: 2nd
+                - aString: Hello World
+                  aNumber: 42
+            """;
+            Console.WriteLine("Given the YAML: " + Environment.NewLine + yamlData + Environment.NewLine);
+
+            var yaml = JsonPath.Node.FromYaml(yamlData);
+
+            Console.WriteLine("Get to the value quickly:");
+            int quickYaml = yaml["doc"][2]["aNumber"];
+            Console.WriteLine("  yaml[\"doc\"][2][\"aNumber\"] = " + quickYaml);
+            Console.WriteLine("");
         }
     }
 }

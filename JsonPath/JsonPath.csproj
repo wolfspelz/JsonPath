@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,11 +7,11 @@
     
     <!-- NuGet Package Properties -->
     <PackageId>JsonPath</PackageId>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <Authors>wolfspelz</Authors>
     <Company>wolfspelz</Company>
     <Product>JsonPath</Product>
-    <Description>A .NET library for extracting values from JSON with simple expressions, similar to XPath for XML but type-safe. Supports JSON and XML parsing with intuitive syntax like json[2]["aNumber"] and LINQ integration.</Description>
+    <Description>A .NET library for extracting values from JSON with simple expressions, similar to XPath for XML but type-safe. Supports JSON, XML and YAML parsing with intuitive syntax like json[2]["aNumber"] and LINQ integration.</Description>
     <PackageTags>json;xml;path;query;parser;xpath;linq;JSON Parser;JsonPath;XPath;POCO</PackageTags>
     <PackageProjectUrl>https://github.com/wolfspelz/JsonPath</PackageProjectUrl>
     <RepositoryUrl>https://github.com/wolfspelz/JsonPath</RepositoryUrl>
@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="YamlDotNet" Version="13.1.0" />
   </ItemGroup>
 
   <ItemGroup>

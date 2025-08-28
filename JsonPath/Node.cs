@@ -57,7 +57,6 @@ namespace JsonPath
         private readonly Type _type = Type.Empty;
         private readonly bool _throwExceptionIfConversionFails = false;
 
-        public Type ValueType => _type;
         public bool IsEmpty => _type == Type.Empty;
         public bool IsList => _type == Type.List;
         public bool IsDictionary => _type == Type.Dictionary;
@@ -66,7 +65,7 @@ namespace JsonPath
         public bool IsString => _type == Type.String;
         public bool IsFloat => _type == Type.Float;
         public bool IsDate => _type == Type.Date;
-        public bool IsNull => _type == Type.Empty;
+        public bool IsNull => Value == null;
 
         public List AsList => IsList ? (List)Value : new List();
         public Dictionary AsDictionary => IsDictionary ? (Dictionary)Value : new Dictionary();
@@ -273,14 +272,19 @@ namespace JsonPath
             }
         }
 
-        public static Node FromJson(string json)
+        public static Node FromJson(string json, DeserializerOptions? options = null)
         {
-            return Deserializer.FromJson(json, null);
+            return Deserializer.FromJson(json, options);
         }
 
         public static Node FromXml(string xml, XmlDeserializerOptions? options = null)
         {
             return new XmlDeserializer(options).Parse(xml);
+        }
+
+        public static Node FromYaml(string yaml, YamlDeserializer.Options? options = null)
+        {
+            return YamlDeserializer.Deserialize(yaml, options);
         }
 
         public static Node FromKeyValueLf(string data)
@@ -298,7 +302,7 @@ namespace JsonPath
         public static Node From(DateTime value) { return new Node(Type.Date) { Value = value }; }
 
         public delegate Node ValueConverter<T>(T value);
-        public static Node From<T>(IEnumerable<KeyValuePair<string, T>> dict, ValueConverter<T> valueConverter)
+        public static Node From<T>(Dictionary<string, T> dict, ValueConverter<T> valueConverter)
         {
             var node = new Node(Type.Dictionary);
             foreach (var pair in dict) {
@@ -307,15 +311,15 @@ namespace JsonPath
             return node;
         }
 
-        public static Node From(IEnumerable<KeyValuePair<string, string>> dict) { return From(dict, From); }
-        public static Node From(IEnumerable<KeyValuePair<string, long>> dict) { return From(dict, From); }
-        public static Node From(IEnumerable<KeyValuePair<string, int>> dict) { return From(dict, From); }
-        public static Node From(IEnumerable<KeyValuePair<string, double>> dict) { return From(dict, From); }
-        public static Node From(IEnumerable<KeyValuePair<string, float>> dict) { return From(dict, From); }
-        public static Node From(IEnumerable<KeyValuePair<string, bool>> dict) { return From(dict, From); }
-        public static Node From(IEnumerable<KeyValuePair<string, DateTime>> dict) { return From(dict, From); }
+        public static Node From(Dictionary<string, string> dict) { return From(dict, s => Node.From(s)); }
+        public static Node From(Dictionary<string, long> dict) { return From(dict, s => Node.From(s)); }
+        public static Node From(Dictionary<string, int> dict) { return From(dict, s => Node.From(s)); }
+        public static Node From(Dictionary<string, double> dict) { return From(dict, s => Node.From(s)); }
+        public static Node From(Dictionary<string, float> dict) { return From(dict, s => Node.From(s)); }
+        public static Node From(Dictionary<string, bool> dict) { return From(dict, s => Node.From(s)); }
+        public static Node From(Dictionary<string, DateTime> dict) { return From(dict, s => Node.From(s)); }
 
-        public static Node From(IEnumerable<KeyValuePair<string, Node>> dict)
+        public static Node From(Dictionary<string, Node> dict)
         {
             var node = new Node(Type.Dictionary);
             foreach (var pair in dict) {
@@ -324,12 +328,12 @@ namespace JsonPath
             return node;
         }
 
-        public static Node From<T>(IEnumerable<KeyValuePair<string, T>> dict)
+        public static Node From(IDictionary<string, object> dict)
         {
             var node = new Node(Type.Dictionary);
             foreach (var pair in dict) {
                 Node child;
-                object? value = pair.Value;
+                object value = pair.Value;
 
                 if (value is string s) {
                     child = Node.From(s);
@@ -347,7 +351,7 @@ namespace JsonPath
                     child = Node.From(dt);
                     //} else if (value is IEnumerable<object> valueIEnumerable) {
                     //    child = Node.From(valueIEnumerable);
-                } else if (value is IEnumerable<KeyValuePair<string, object?>> valueIDictionary) {
+                } else if (value is IDictionary<string, object> valueIDictionary) {
                     child = Node.From(valueIDictionary);
                 } else if (value == null) {
                     child = new Node(Type.Empty);
@@ -356,11 +360,13 @@ namespace JsonPath
 
                     // if ToJson exists
                     //   child = Node.From(value.ToJson());
-                    // else
+                    // else 
                     //   child = Node.Reflected(value) // with cycle detection
                 }
 
-                node.AsDictionary.Add(pair.Key, child);
+                if (child != null) {
+                    node.AsDictionary.Add(pair.Key, child);
+                }
             }
             return node;
         }
@@ -524,31 +530,6 @@ namespace JsonPath
             } else {
                 return Node.From(AsString);
             }
-        }
-
-        public Node Clone()
-        {
-            Node clone = new(_type);
-            switch (_type) {
-                case Type.List:
-                    List nodeList = new();
-                    foreach(Node item in AsList) {
-                        nodeList.Add(item.Clone());
-                    }
-                    clone.Value = nodeList;
-                break;
-                case Type.Dictionary:
-                    Dictionary nodeDictionary = new();
-                    foreach(KeyValuePair<string, Node> kv in AsDictionary) {
-                        nodeDictionary.Add(kv.Key, kv.Value.Clone());
-                    }
-                    clone.Value = nodeDictionary;
-                break;
-                default:
-                    clone.Value = Value;
-                break;
-            }
-            return clone;
         }
 
     }

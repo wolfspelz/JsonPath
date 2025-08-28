@@ -2,6 +2,6 @@
 {
     public interface IDataName
     {
-        string GetName(string app, string? lang, string context, string? key);
+        string GetName(string app, string lang, string context, string key);
     }
 }

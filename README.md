@@ -8,6 +8,7 @@ A .NET library for extracting values from JSON and XML with simple expressions, 
 - **Type-Safe Operations**: Built-in type conversions with `.AsInt`, `.AsString`, `.AsDictionary`, etc.
 - **LINQ Integration**: Full support for LINQ queries on JSON data
 - **XML Support**: Parse and navigate XML documents with the same syntax
+- **YAML Support**: Parse and navigate YAML documents with the same syntax
 - **No Exceptions**: Invalid paths return default values instead of throwing exceptions
 - **Enumerable Support**: Iterate over JSON arrays and objects with foreach loops
 
@@ -48,6 +49,7 @@ int result = json[2].Where(x => x.Key == "aNumber").Select(x => x.Value).First()
 ## XML Support
 
 ```csharp
+// Parse YAML
 var xml = Node.FromXml("""
             <root>
                 <item>1st</item>
@@ -59,6 +61,21 @@ var xml = Node.FromXml("""
             """);
 var number = xml[Xml.Children][2][Xml.Children]
     .AsList.FirstOrDefault(x => x[Xml.Name] == "aNumber")?[Xml.Text].AsInt;
+```
+
+
+## YAML Support
+
+```csharp
+var xml = Node.FromYaml("""
+doc:
+    - item: 1st
+    - item: 2nd
+    - aString: Hello World
+      aNumber: 42
+""");
+
+int number = json[2]["aNumber"];
 ```
 
 ## Installation
